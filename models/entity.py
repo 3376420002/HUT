@@ -1,6 +1,7 @@
 from sqlalchemy import Column, Integer, String
 from db.DB import Base
 
+
 class Pairnts(Base):
     __tablename__ = 'pairnts'
 

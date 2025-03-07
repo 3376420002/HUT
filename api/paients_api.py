@@ -7,6 +7,7 @@ router = APIRouter()
 class TokenRequest(BaseModel):
     token: str
 
+
 class ModifyPersonInfo(BaseModel):
     token: str
     name: str
