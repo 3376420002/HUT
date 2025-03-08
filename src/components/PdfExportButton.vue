@@ -60,7 +60,17 @@ export default {
                         const imageField = form.getButton('eyeImage_af_image');
 
                         const imageBytes = await this.readFileAsArrayBuffer(formData.eyeImage);
-                        const image = await pdfDoc.embedJpg(imageBytes);
+                        
+                        // 通用图片处理（根据文件类型自动选择嵌入方式）
+                        const imageType = formData.eyeImage.type;
+                        let image;
+                        if (imageType === 'image/jpeg') {
+                            image = await pdfDoc.embedJpg(imageBytes);
+                        } else if (imageType === 'image/png') {
+                            image = await pdfDoc.embedPng(imageBytes);
+                        } else {
+                            throw new Error('不支持的图片格式，仅支持JPG/PNG');
+                        }
 
                         // 获取图片字段的尺寸和位置
                         const widget = imageField.acroField.getWidgets()[0];
