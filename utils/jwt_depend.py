@@ -1,18 +1,18 @@
 from datetime import datetime, timedelta
 from jose import JWTError, jwt
 from fastapi import HTTPException, status
-from models.entity import User_password
 from core.config import settings
+from services.dbModify import get_userPassword
 
 
 # 验证密码
-def verify_password(plain_password: str, hashed_password: str):
+async def verify_password(plain_password: str, hashed_password: str):
     return plain_password == hashed_password
 
 
 # 验证用户
-def authenticate_user(username: str, password: str):
-    user = seek_users_db.get(username)
+async def authenticate_user(username: str, password: str):
+    user = get_userPassword(username)
     if not user:
         return False
     if not verify_password(password, user["password"]):
@@ -21,7 +21,7 @@ def authenticate_user(username: str, password: str):
 
 
 # 创建 Token
-def create_token(data: dict, expires_delta: timedelta):
+async def create_token(data: dict, expires_delta: timedelta):
     to_encode = data.copy()
     expire = datetime.utcnow() + expires_delta
     to_encode.update({"exp": expire})
@@ -30,7 +30,7 @@ def create_token(data: dict, expires_delta: timedelta):
 
 
 # 验证 Token
-def verify_token(token: str) -> User_password:
+async def verify_token(token: str) -> tuple:
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
         detail="Could not validate credentials",
@@ -42,6 +42,7 @@ def verify_token(token: str) -> User_password:
         token_type: str = payload.get("type")
         if username is None:
             raise credentials_exception
-        return User_password(username=username, token_type=token_type)
+        return username, token_type
+
     except JWTError:
         raise credentials_exception

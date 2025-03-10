@@ -25,17 +25,12 @@ class Paients_report(Base):
 class User(Base):
     __tablename__ = 'user'
 
-    id = Column(Integer, primary_key=True, index=True)
-    account_id = Column(Integer)
-    gender = Column(String(10))
-    age = Column(Integer)
+    name = Column(String(20))
+    accountId = Column(Integer, primary_key=True, index=True)
+    gender = Column(String(5))
+    age = Column(String(5))
     department = Column(String(50))
     email = Column(String(50))
     phone = Column(String(50))
-
-
-class User_password(Base):
-    __tablename__ = 'user_password'
-
-    accountId = Column(Integer, primary_key=True, index=True)
     password = Column(String(50))
+
