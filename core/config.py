@@ -11,8 +11,8 @@ class Settings(BaseSettings):
     DATABASE_URL: str = f"mysql+pymysql://{MYSQL_USER}:{MYSQL_PASSWORD}@{MYSQL_HOST}:{MYSQL_PORT}/{MYSQL_DB}"
 
     # fastapi config
-    HOST: str = "127.0.0.1"
-    PORT: int = 8000
+    HOST: str = "0.0.0.0"
+    PORT: int = 8800
 
     # jwt config
     JWT_SECRET_KEY: str = "secret_key"
