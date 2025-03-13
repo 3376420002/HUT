@@ -16,10 +16,7 @@ export default {
 </script>
 
 <style>
-#app {
-  padding: 20px;        
-  max-width: 800px;     
-  margin: 0 auto;       
-  box-sizing: border-box;
+#app {       
+  max-width: 100%;     
 }
 </style> 

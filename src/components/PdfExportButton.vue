@@ -40,9 +40,9 @@ export default {
                 const form = pdfDoc.getForm();
                 const formData = this.formData;
 
-                // 自动填充文本字段
+                // 自动填充文本字段（更新字段过滤逻辑）
                 Object.keys(formData).forEach(fieldName => {
-                    if (fieldName === 'eyeImage') return; // 跳过图片字段
+                    if (fieldName.includes('_image')) return; // 跳过所有图片字段
 
                     try {
                         const field = form.getTextField(fieldName);
@@ -53,35 +53,38 @@ export default {
                     }
                 });
 
-                // 处理图片字段
-                if (formData.eyeImage) {
-                    try {
-                        // 获取图片域
-                        const imageField = form.getButton('eyeImage_af_image');
+                // 处理左右眼图片字段（新增双图片处理）
+                const handleImageField = async (formFieldName, pdfFieldName) => {
+                    if (formData[formFieldName]) {
+                        try {
+                            const imageField = form.getButton(pdfFieldName);
+                            const imageBytes = await this.readFileAsArrayBuffer(formData[formFieldName]);
+                            
+                            // 通用图片处理（根据文件类型自动选择嵌入方式）
+                            const imageType = formData[formFieldName].type;
+                            let image;
+                            if (imageType === 'image/jpeg') {
+                                image = await pdfDoc.embedJpg(imageBytes);
+                            } else if (imageType === 'image/png') {
+                                image = await pdfDoc.embedPng(imageBytes);
+                            } else {
+                                throw new Error('不支持的图片格式，仅支持JPG/PNG');
+                            }
 
-                        const imageBytes = await this.readFileAsArrayBuffer(formData.eyeImage);
-                        
-                        // 通用图片处理（根据文件类型自动选择嵌入方式）
-                        const imageType = formData.eyeImage.type;
-                        let image;
-                        if (imageType === 'image/jpeg') {
-                            image = await pdfDoc.embedJpg(imageBytes);
-                        } else if (imageType === 'image/png') {
-                            image = await pdfDoc.embedPng(imageBytes);
-                        } else {
-                            throw new Error('不支持的图片格式，仅支持JPG/PNG');
+                            // 获取图片字段的尺寸和位置
+                            const widget = imageField.acroField.getWidgets()[0];
+                            const rect = widget.getRectangle();
+
+                            // 将图片设置到图片域中
+                            imageField.setImage(image);
+                        } catch (error) {
+                            console.warn(`图片字段 ${formFieldName} 处理失败:`, error);
                         }
-
-                        // 获取图片字段的尺寸和位置
-                        const widget = imageField.acroField.getWidgets()[0];
-                        const rect = widget.getRectangle();
-
-                        // 将图片设置到图片域中
-                        imageField.setImage(image);
-                    } catch (error) {
-                        console.warn('图片字段处理失败:', error);
                     }
-                }
+                };
+
+                await handleImageField('left_eye_image', 'left_eye_image_af_image');
+                await handleImageField('right_eye_image', 'right_eye_image_af_image');
 
                 // 保存PDF
                 const pdfBytes = await pdfDoc.save();

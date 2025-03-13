@@ -1,7 +1,6 @@
 <template>
   <div class="upload-wrapper">
     <!-- 拖拽区域容器 -->
-    <!-- 处理拖拽相关事件并动态改变边框颜色 -->
     <div class="upload-container" @dragover.prevent="handleDragOver" @dragleave="handleDragLeave"
       @drop.prevent="handleDrop" :style="{ borderColor: dragActive ? '#409eff' : '#dcdfe6' }">
       <!-- 隐藏的原生文件输入控件 -->
@@ -9,13 +8,8 @@
 
       <!-- 内容展示区域 -->
       <div class="upload-content">
-        <!-- 浏览器限制：<img>标签的src属性只能接受以下格式：
-          相对/绝对URL路径
-          Base64 DataURL（即previewUrl）
-          Blob URL
-        安全策略：浏览器不允许直接访问本地文件路径（如C:\files\img.jpg） -->
         <img v-if="previewUrl" :src="previewUrl" class="preview-image">
-        <p class="upload-text" v-else>将图片拖到此处或点击右侧图标</p>
+        <p class="upload-text" v-else>将图片拖到此处或点击下方图标</p>
       </div>
     </div>
 
@@ -86,13 +80,14 @@ export default {
 <style scoped>
 .upload-wrapper {
   display: flex;
+  flex-direction: column;
   align-items: flex-start;
   gap: 20px;
 }
 
 .upload-container {
-  width: 250px;
-  height: 200px;
+  width: 300px;
+  height: 300px;
   border: 2px dashed #dcdfe6;
   border-radius: 8px;
   background: #fafafa;
