@@ -34,3 +34,10 @@ class User(Base):
     phone = Column(String(50))
     password = Column(String(50))
 
+
+class Test(Base):
+    __tablename__ = 'test'
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    name = Column(String(50))
+    age = Column(Integer)
