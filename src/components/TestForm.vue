@@ -104,11 +104,11 @@
 
           <el-form-item label="右眼图片" class="top-label-item">
             <image-uploader @file-uploaded="RhandleUpload" />
-          </el-form-item> 
+          </el-form-item>
         </div>
 
         <el-form-item label="医生建议">
-          <el-input v-model="form.advice" type="textarea" maxlength=300 :autosize="{ minRows: 2, maxRows: 4 }" />
+          <el-input v-model="form.advice" type="textarea" maxlength=300 size=10 />
         </el-form-item>
         <el-form-item>
           <pdf-export-button :form-data="form" />
@@ -156,18 +156,19 @@ export default {
     }
   },
   methods: {
-    LhandleUpload(uploadEvent) {
-      const file = uploadEvent?.file || uploadEvent;
+    LhandleUpload({ file, base64 }) {  // 解构参数获取file和base64
       if (file instanceof File) {
         this.form.left_eye_image = file;
+        console.log(base64);
+        // console.log(this.form.left_eye_image);
       } else {
         this.$message.error('文件格式不正确，请上传图片文件');
       }
     },
-    RhandleUpload(uploadEvent) {
-      const file = uploadEvent?.file || uploadEvent;
+    RhandleUpload({ file, base64 }) {
       if (file instanceof File) {
         this.form.right_eye_image = file;
+        console.log(base64);
       } else {
         this.$message.error('文件格式不正确，请上传图片文件');
       }
@@ -246,38 +247,38 @@ export default {
   }
 }
 
-.eye-status-container2{
+.eye-status-container2 {
   display: flex;
   width: 100%;
   gap: 60px;
   padding: 0;
-  clear: both;  
+  clear: both;
 
-  .Macularcondition-item{
+  .Macularcondition-item {
     width: 160px;
   }
 
-  .Historyofhypertension-item{
+  .Historyofhypertension-item {
     width: 160px;
   }
 
-  .Historyofdiabetes-item{
+  .Historyofdiabetes-item {
     width: 160px;
   }
-  
+
 }
 
-.eye-status-container3{
+.eye-status-container3 {
   display: flex;
   width: 100%;
   gap: 100px;
   padding: 0;
 
-  .Historyofeyedisease-item{
+  .Historyofeyedisease-item {
     width: 200px;
   }
 
-  .Amilymedicalhistory-item{
+  .Amilymedicalhistory-item {
     width: 200px;
   }
 }

@@ -3,17 +3,15 @@
     <!-- 拖拽区域容器 -->
     <div class="upload-container" @dragover.prevent="handleDragOver" @dragleave="handleDragLeave"
       @drop.prevent="handleDrop" :style="{ borderColor: dragActive ? '#409eff' : '#dcdfe6' }">
-      <!-- 隐藏的原生文件输入控件 -->
+      <!-- 隐藏原生文件输入控件 -->
       <input type="file" ref="fileInput" hidden accept="image/*" @change="handleFileSelect">
-
-      <!-- 内容展示区域 -->
       <div class="upload-content">
         <img v-if="previewUrl" :src="previewUrl" class="preview-image">
         <p class="upload-text" v-else>将图片拖到此处或点击下方图标</p>
       </div>
     </div>
 
-    <!-- 右侧操作图标 -->
+    <!-- 下方操作图标 -->
     <div class="action-icon" @click="triggerFileSelect" :title="previewUrl ? '更换图片' : '上传图片'">
       <el-button circle :icon="previewUrl ? 'el-icon-refresh-right' : 'el-icon-upload2'" />
     </div>
@@ -25,7 +23,7 @@ export default {
   data() {
     return {
       dragActive: false,  // 拖拽激活状态标识（用于边框高亮）
-      previewUrl: null    // 存储图片预览的DataURL
+      previewUrl: null    // 存储图片预览的DataURL（Base64）
     };
   },
   methods: {
@@ -37,13 +35,9 @@ export default {
     handleFileSelect(e) {
       this.processFile(e.target.files[0]);
     },
-
-    //激活拖拽状态
     handleDragOver() {
       this.dragActive = true;
     },
-
-    //取消拖拽状态
     handleDragLeave() {
       this.dragActive = false;
     },
@@ -54,21 +48,21 @@ export default {
       this.processFile(e.dataTransfer.files[0]);
     },
 
-    //处理文件验证和预览
     processFile(file) {
-      if (!file) return;
-
+      // 文件类型验证
       if (!file.type.startsWith('image/')) {
         return alert('请选择图片文件！');
       }
-
-      // 创建文件阅读器生成预览图
+      // 创建FileReader读取文件
       const reader = new FileReader();
-      // 文件加载完成回调
       reader.onload = (e) => {
+        // 生成Base64预览图
         this.previewUrl = e.target.result;
+
+        // 向父组件传递文件对象
         this.$emit('file-uploaded', {
-          file: file
+          file: file,  // 原始文件对象
+          base64: e.target.result //Base64传递
         });
       };
       reader.readAsDataURL(file);
