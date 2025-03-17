@@ -16,9 +16,9 @@ class Paients_report(Base):
     __tablename__ = 'paients_report'
 
     reportId = Column(Integer, primary_key=True, index=True)
-    report_times = Column(Integer)
     time = Column(String(50))
     status = Column(String(50))
+    photo = Column(String)
     Aiadivice = Column(String(50))
 
 

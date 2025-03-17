@@ -1,7 +1,6 @@
 import uvicorn
-import requests
 
-from api import disease_date_api, paients_api
+from api import disease_date_api, paients_api, ai_api
 from fastapi import FastAPI
 from core.config import settings
 from fastapi.middleware.cors import CORSMiddleware
@@ -24,14 +23,9 @@ async def root():
 
 app.include_router(disease_date_api.router)
 app.include_router(paients_api.router)
+app.include_router(ai_api.router)
 
-requests = requests.get("http://192.168.1.202:5000/api/fundus_analysi")
-if requests.status_code == 200:
-    # 解析 JSON 数据
-    data = requests.json()
-    print(data)
-else:
-    print(f"Error: {requests.status_code} - {requests.text}")
+
 
 if __name__ == "__main__":
     uvicorn.run("main:app", host=settings.HOST, port=settings.PORT, reload=True)

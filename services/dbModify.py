@@ -13,7 +13,7 @@ def get_db():
         db.close()
 
 
-def get_userPassword(username: str, db: Session = Depends(get_db)):
+async def get_userPassword(username: str, db: Session = Depends(get_db)):
     user = db.query(User).filter(User.name == username).first()
     if user:
         return user.password
