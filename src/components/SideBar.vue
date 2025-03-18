@@ -136,7 +136,7 @@ export default {
       isLoading: false, // 加载状态变量
       // imageName: ["图片1", "图片2", "图片3"],
       buttonName: "导入至病例",
-      selectedImages:"",
+      selectedImages: "",
       inputElements: [],
       toolChoose: 1,
       // tabs: []
@@ -150,18 +150,18 @@ export default {
       let imageCount = 0;
       if (this.imageSrc) {
         imageCount = 1;
-        this.selectedImages=this.imageSrc;
+        this.selectedImages = this.imageSrc;
         this.inputElements = Array.from({ length: imageCount }, () => []);
       } else if (this.images.length > 0) {
         imageCount = this.images.length;
-        this.selectedImages=this.images;
+        this.selectedImages = this.images;
         this.inputElements = this.images.map(item => ({
           name: item.name,
           inputs: []
         }));
       } else if (this.imagePaths.length > 0) {
         imageCount = this.imagePaths.length;
-        this.selectedImages=this.imagePaths;
+        this.selectedImages = this.imagePaths;
         this.inputElements = this.imagePaths.map(item => ({
           name: item.name,
           inputs: []
@@ -203,7 +203,6 @@ export default {
       // 模拟异步操作，比如发送请求
       setTimeout(() => {
         this.buttonName = "导入至病例";
-        console.log(this.inputElements);
         this.$emit('setGenerateStatus', true);
         this.$confirm('导入成功！即将进行页面跳转...', '提示', {
           showCancelButton: false,
@@ -213,9 +212,9 @@ export default {
         this.isLoading = false; // 加载完成，隐藏加载动画
         setTimeout(() => {
           MessageBox.close();
-          const params={
+          const params = {
             images: this.selectedImages,
-            imageChoice:this.imageChoice,
+            imageChoice: this.imageChoice,
             inputs: this.inputElements
           }
           this.$router.push({

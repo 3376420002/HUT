@@ -275,7 +275,7 @@ export default {
   },
   methods: {
     backToHome() {
-      if(!this.isGenerate){
+      if (!this.isGenerate) {
         this.$confirm('您所编辑过的信息还没有保存,返回将会丢失,是否继续?', '提示', {
           confirmButtonText: '确定',
           cancelButtonText: '取消',
@@ -286,9 +286,9 @@ export default {
           this.$message({
             type: 'info',
             message: '已取消'
-          });          
+          });
         });
-      }else{
+      } else {
         this.$router.push("/analyses")
       }
     },
@@ -1037,15 +1037,11 @@ canvas {
 #button-container {
   position: absolute;
   background-color: transparent;
-  /* 灰色背景 */
   width: 100%;
   height: 70px;
-  /* 合适的高度 */
   display: flex;
   justify-content: flex-end;
-  /* 按钮居右显示 */
   align-items: center;
-  /* position: relative; */
 }
 
 #button-container button.active-button {

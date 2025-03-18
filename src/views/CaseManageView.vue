@@ -27,7 +27,7 @@
                     <el-input v-model="form.gender" />
                   </el-form-item>
                   <el-form-item label="病历号" prop="caseID" class="caseID-item">
-                    <el-input v-model="form.caseID"  />
+                    <el-input v-model="form.caseID" />
                   </el-form-item>
                 </div>
 
@@ -86,10 +86,12 @@
               <el-col :span="10">
                 <div class="image-container">
                   <el-form-item label="左眼图片" class="top-label-item">
-                    <image-uploader :imageFile="this.form.left_eye_image" @file-uploaded="LHandleUpload" />
+                    <image-uploader :isUpload="true" :imageFile="this.form.left_eye_image"
+                      @file-uploaded="LHandleUpload" />
                   </el-form-item>
                   <el-form-item label="右眼图片" class="top-label-item">
-                    <image-uploader :imageFile="this.form.right_eye_image" @file-uploaded="RHandleUpload" />
+                    <image-uploader :isUpload="true" :imageFile="this.form.right_eye_image"
+                      @file-uploaded="RHandleUpload" />
                   </el-form-item>
                 </div>
                 <el-form-item label="医生建议">
@@ -150,11 +152,11 @@ export default {
     }
   },
   created() {
-
-  },
-  mounted() {
     this.InitCase();
     this.InitAdvice();
+  },
+  mounted() {
+
   },
   methods: {
     InitCase() {
@@ -179,25 +181,26 @@ export default {
       }
     },
     InitAdvice() {
-      if (this.$route.query) {
-        const inputElements = this.$route.query.inputElements;
+      if (this.$route.query && this.$route.query.inputs) {
+        const inputElements = this.$route.query.inputs;
         const groupedData = {
           "左眼": [],
           "右眼": []
         };
+        // 对 inputElements 进行分类
         inputElements.forEach(item => {
-          if (item.name === "left" || item.name === "left-oct") {
-            groupedData["左眼"] = groupedData["左眼"].concat(item.inputs);
-          } else if (item.name === "right" || item.name === "right-oct") {
-            groupedData["右眼"] = groupedData["右眼"].concat(item.inputs);
+          if (item.name === "left" || item.name === "left - oct") {
+            groupedData["左眼"] = groupedData["左眼"].concat(item.inputs.map(input => input.value));
+          } else if (item.name === "right" || item.name === "right - oct") {
+            groupedData["右眼"] = groupedData["右眼"].concat(item.inputs.map(input => input.value));
           }
         });
+        // 用于存储最终生成的字符串
         let result = "";
-
         // 遍历分类后的结果，拼接字符串
         for (const [key, values] of Object.entries(groupedData)) {
           if (values.length > 0) {
-            result += `${key}:\n`;
+            result += `${key}：\n`;
             values.forEach((value, index) => {
               result += `${index + 1}.${value}\n`;
             });
@@ -225,7 +228,7 @@ export default {
     },
     LHandleUpload({ file, base64 }) {  // 解构参数获取file和base64
       if (file instanceof File) {
-        this.form.left_eye_image = file;
+        this.form.left_eye_image = base64;
         console.log(base64);
         // console.log(this.form.left_eye_image);
       } else {
@@ -234,7 +237,7 @@ export default {
     },
     RHandleUpload({ file, base64 }) {
       if (file instanceof File) {
-        this.form.right_eye_image = file;
+        this.form.right_eye_image = base64;
         console.log(base64);
       } else {
         this.$message.error('文件格式不正确，请上传图片文件');

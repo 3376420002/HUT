@@ -10,7 +10,7 @@
             </el-form-item>
 
             <el-form-item label="年龄" prop="age" class="age-item">
-              <el-input v-model="form.age" @input="handleAgeInput" :disabled="!isEditing" />
+              <el-input v-model="form.age" :disabled="!isEditing" />
             </el-form-item>
 
             <el-form-item label="性别" prop="gender" class="gender-item">
@@ -104,7 +104,7 @@ export default {
 /* 每个信息容器独占一行 */
 .personal-info-container {
   display: flex;
-  flex-direction: pow;
+  flex-direction: row;
   width: 100%;
   gap: 20px;
   padding: 0;

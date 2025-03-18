@@ -84,14 +84,11 @@ export default {
 
 .toolbar {
   height: 40px;
-  /* 增加toolbar高度，使内容更舒展 */
   background-color: #212733;
-  /* 淡蓝色背景 */
   padding: 0 20px;
   display: flex;
   align-items: center;
   border-bottom: 1px solid #67606F;
-  /* 添加底部边框，区分内容区域 */
 }
 
 .toolbar ul {
@@ -142,5 +139,10 @@ export default {
   border-bottom-right-radius: 10px;
   box-shadow: 0 -2px 4px rgba(0, 0, 0, 0.1);
   /* 添加底部阴影，增加立体感 */
+}
+
+.el-form-item :deep(.el-form-item__label) {
+  color: #d4c7e3 !important;
+  /* 原错误位置注释已移除 */
 }
 </style>

@@ -4,56 +4,37 @@
       <div class="submit">
         <div class="tool-bar">
           <div class="button-group">
-            <button 
-              class="fundus-btn" 
-              @click="addImageUploader(1)"
-              :class="{ active: imageKind[1] }"
-            >
+            <button class="fundus-btn" @click="addImageUploader(1)" :class="{ active: imageKind[1] }">
               <span class="short-text">左眼底</span>
               <span class="full-text">左眼眼底图</span>
             </button>
-            <button 
-              class="fundus-btn" 
-              @click="addImageUploader(2)"
-              :class="{ active: imageKind[2] }"
-            >
+            <button class="fundus-btn" @click="addImageUploader(2)" :class="{ active: imageKind[2] }">
               <span class="short-text">右眼底</span>
               <span class="full-text">右眼眼底图</span>
             </button>
-            <button 
-              class="oct-btn" 
-              @click="addImageUploader(3)"
-              :class="{ active: imageKind[3] }"
-            >
+            <button class="oct-btn" @click="addImageUploader(3)" :class="{ active: imageKind[3] }">
               <span class="short-text">左OCT</span>
               <span class="full-text">左眼OCT图像</span>
             </button>
-            <button 
-              class="oct-btn" 
-              @click="addImageUploader(4)"
-              :class="{ active: imageKind[4] }"
-            >
+            <button class="oct-btn" @click="addImageUploader(4)" :class="{ active: imageKind[4] }">
               <span class="short-text">右OCT</span>
               <span class="full-text">右眼OCT图像</span>
             </button>
           </div>
         </div>
-        <div class="images">
+        <div class="images-container">
           <div v-for="index in 4" :key="index">
-            <div v-if="imageKind[index]">
-              <imguploader @file-uploaded="(payload) => imageUpload(payload, index)" />
+            <div v-if="imageKind[index]" class="images">
+              <ImageUploader :isUpload="true" @file-uploaded="(payload) => imageUpload(payload, index)" />
             </div>
           </div>
         </div>
-      </div>
-
-      <div class="results">
-        <button @click="observationMode">观察模式</button>
-      </div>
-      <div v-if="hasCommitted" class="images">
-        <div v-for="index in 4" :key="index">
-          <div v-if="imageKind[index]">
-            <ResultImage :resultImage="images[index - 1]" />
+        <div class="results">
+          <button @click="observationMode">观察模式</button>
+        </div>
+        <div v-if="hasCommitted" class="images-container">
+          <div v-for="(image, index) of imageResult" :key="index" class="images">
+            <ImageUploader :imageFile="image.path" />
           </div>
         </div>
       </div>
@@ -71,16 +52,14 @@
 
 <script>
 import StatusBar from '@/components/IllnessExpectationColumn.vue'
-import textImage2 from '@/assets/text2.jpg';
-import imguploader from '@/components/ImageUploader.vue'
-import ResultImage from '@/components/ResultImage.vue'
+// import textImage2 from '@/assets/text2.jpg';
+import ImageUploader from '@/components/ImageUploader.vue'
 
 export default {
   name: 'ImageAnalysisView', // 添加组件名称
   components: {
     StatusBar,
-    imguploader,
-    ResultImage
+    ImageUploader,
   },
   data() {
     return {
@@ -99,26 +78,27 @@ export default {
       probabilities: [],
       isLoading: false,
       images: [],
-      octImage: [],
+      // octImage: [],
       imageSrc: "",
       imagePaths: [],
-      imageResult: [{
-        name: "oct",
-        path: textImage2,
-        hasLegend: true,
-        legends: [
-          { "color": "#FF5733", "name": "活力橙" },
-          { "color": "#33FF57", "name": "清新绿" },
-          { "color": "#5733FF", "name": "梦幻紫" },
-          { "color": "#FFFF33", "name": "灿烂黄" },
-          { "color": "#33FFFF", "name": "澄澈蓝" },
-          { "color": "#FF33C1", "name": "浪漫粉" },
-          { "color": "#9933FF", "name": "深邃靛" },
-          { "color": "#33FF99", "name": "盎然碧" },
-          { "color": "#FF9933", "name": "暖阳橘" },
-          { "color": "#3399FF", "name": "宁静海蓝" }
-        ]
-      }],
+      imageResult: [],
+      // imageResult: [{
+      //   name: "oct",
+      //   path: textImage2,
+      //   hasLegend: true,
+      //   legends: [
+      //     { "color": "#FF5733", "name": "活力橙" },
+      //     { "color": "#33FF57", "name": "清新绿" },
+      //     { "color": "#5733FF", "name": "梦幻紫" },
+      //     { "color": "#FFFF33", "name": "灿烂黄" },
+      //     { "color": "#33FFFF", "name": "澄澈蓝" },
+      //     { "color": "#FF33C1", "name": "浪漫粉" },
+      //     { "color": "#9933FF", "name": "深邃靛" },
+      //     { "color": "#33FF99", "name": "盎然碧" },
+      //     { "color": "#FF9933", "name": "暖阳橘" },
+      //     { "color": "#3399FF", "name": "宁静海蓝" }
+      //   ]
+      // }],
       uploadedImg: [],
       isUploadImg: false,
     };
@@ -128,10 +108,26 @@ export default {
       this.imageKind[type] = !this.imageKind[type];
     },
     imageUpload(payload, type) {
-      if (type >= 3) {
-        this.imageOCT.push(payload.base64);
+      if (type === 1) {
+        this.imageFundus.push({
+          name: "left",
+          path: payload.base64
+        })
+      } else if (type === 2) {
+        this.imageFundus.push({
+          name: "right",
+          path: payload.base64
+        })
+      } else if (type === 3) {
+        this.imageOCT.push({
+          name: "left-oct",
+          path: payload.base64
+        })
       } else {
-        this.imageFundus.push(payload.base64);
+        this.imageOCT.push({
+          name: "right-oct",
+          path: payload.base64
+        })
       }
       this.handleImageUpload();
     },
@@ -140,6 +136,7 @@ export default {
         ...this.imageFundus,
         ...this.imageOCT
       ];
+      this.isUploadImg = true;
     },//10:38
     InitImagePaths() {
 
@@ -147,7 +144,7 @@ export default {
     uploadImages() {
       this.imagePaths = this.uploadedImg;
       console.log(Array.isArray(this.imagePaths))
-      this.isUploadImg = true;
+      // this.hasCommitted = true;
     },
     async getResults() {
       this.isLoading = true;
@@ -167,21 +164,16 @@ export default {
           { name: "晚期青光眼", probability: 0.01 },
           { name: "病理性近视", probability: 0.01 }
         ];
-        this.imagePaths = this.imageResult;
+        // this.imagePaths = this.imageResult;
+        this.imageResult = this.images;
         this.isUploadImg = true;
-        console.log(this.imagePaths);
       }, 3000);
     },
     observationMode() {
-      if (!this.hasCommitted) {
+      if (!this.isUploadImg) {
         this.$alert('请先上传图片!', '注意', {
-          confirmButtonText: '确定'
-          // callback: action => {
-          //   this.$message({
-          //     type: 'info',
-          //     message: `action: ${ action }`
-          //   });
-          // }
+          confirmButtonText: '确定',
+          callback: () => {}
         });
       } else {
         this.$router.push({
@@ -247,24 +239,20 @@ export default {
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
-.setUp button:hover {
-  background-color: #0056b3;
-  transform: translateY(-2px);
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-}
-
 .probabilities {
   padding: 20px;
   border-bottom-right-radius: 10px;
   text-align: center;
 }
 
-.images {
+.images-container {
   display: flex;
-  flex-direction: row;
-  gap: 30px;
   align-items: center;
   justify-content: center;
+}
+
+.images {
+  margin: 0 15px 0 15px;
 }
 
 /* 新增按钮样式 */
@@ -285,7 +273,6 @@ export default {
 button {
   padding: 10px 15px;
   border: 2px solid transparent;
-  background: #1a1a1a;
   color: #4CAF50;
   border-radius: 4px;
   transition: all 0.3s ease;
@@ -312,10 +299,11 @@ button:hover {
   .button-group {
     grid-template-columns: repeat(2, 1fr);
   }
-  
+
   .short-text {
     display: inline;
   }
+
   .full-text {
     display: none;
   }
@@ -325,7 +313,7 @@ button:hover {
   .button-group {
     grid-template-columns: 1fr;
   }
-  
+
   button {
     padding: 12px;
     font-size: 0.85em;

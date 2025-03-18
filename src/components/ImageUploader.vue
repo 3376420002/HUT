@@ -3,12 +3,14 @@
     <div class="upload-container" @dragover.prevent="handleDragOver" @dragleave="handleDragLeave"
       @drop.prevent="handleDrop" :style="{ borderColor: dragActive ? '#BAE67E' : '#dcdfe6' }">
       <!-- 隐藏原生文件输入控件 -->
-      <input type="file" ref="fileInput" hidden accept="image/*" @change="handleFileSelect" :disabled="disabled">
       <img v-if="previewUrl" :src="previewUrl" class="preview-image">
       <!-- 浮动操作图标 -->
-      <div class="action-icon" @click.stop="triggerFileSelect" :title="previewUrl ? '更换图片' : '上传图片'">
-        <i class="el-icon-plus" v-if="!previewUrl"></i>
-        <i class="el-icon-refresh-right" v-if="previewUrl"></i>
+      <div class="upload" v-if="isUpload">
+        <input type="file" ref="fileInput" hidden accept="image/*" @change="handleFileSelect" :disabled="disabled">
+        <div class="action-icon" @click.stop="triggerFileSelect" :title="previewUrl ? '更换图片' : '上传图片'">
+          <i class="el-icon-plus" v-if="!previewUrl"></i>
+          <i class="el-icon-refresh-right" v-if="previewUrl"></i>
+        </div>
       </div>
     </div>
   </div>
@@ -24,6 +26,10 @@ export default {
     imageFile: {
       type: String,
       default: ""
+    },
+    isUpload: {
+      type: Boolean,
+      default: false
     }
   },
   data() {
@@ -34,10 +40,17 @@ export default {
     };
   },
   watch: {
-    imageFile(newValue) {
-      this.previewUrl = newValue;
-      console.log(this.previewUrl);
+    imageFile: {
+      handler(newValue) {
+        this.previewUrl = newValue;
+        console.log(this.previewUrl);
+      },
+      deep: true
     }
+  },
+  created(){
+    if(this.imageFile)
+    this.previewUrl=this.imageFile;
   },
   methods: {
     //点击触发文件选择对话框
@@ -74,7 +87,7 @@ export default {
       reader.onload = (e) => {
         // 生成Base64预览图
         this.previewUrl = e.target.result;
-
+        console.log(this.previewUrl);
         // 向父组件传递文件对象
         this.$emit('file-uploaded', {
           file: file,
@@ -88,18 +101,18 @@ export default {
 </script>
 
 <style scoped>
-.upload-wrapper {
+/* .upload-wrapper {
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
+  align-items: flex-start; 
   gap: 20px;
-}
+} */
 
 .upload-container {
   position: relative;
   /* 为绝对定位图标提供参照 */
-  width: 225px;
-  height: 225px;
+  width: 250px;
+  height: 250px;
   border: 2px dashed #dcdfe6;
   border-radius: 8px;
   background: #1A1F28;
