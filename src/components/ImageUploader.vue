@@ -85,9 +85,7 @@ export default {
       // 创建FileReader读取文件
       const reader = new FileReader();
       reader.onload = (e) => {
-        // 生成Base64预览图
         this.previewUrl = e.target.result;
-        console.log(this.previewUrl);
         // 向父组件传递文件对象
         this.$emit('file-uploaded', {
           file: file,

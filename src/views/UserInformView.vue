@@ -38,7 +38,7 @@
         <el-col :span="10">
           <div class="image-container">
             <el-form-item label="个人照片">
-              <ImageUploader @file-uploaded="imageUpload" :disabled="!isEditing" />
+              <ImageUploader :isUpload="true" @file-uploaded="imageUpload" :disabled="!isEditing" />
             </el-form-item>
           </div>
         </el-col>
