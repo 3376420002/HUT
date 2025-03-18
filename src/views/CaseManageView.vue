@@ -225,7 +225,7 @@ export default {
     },
     LHandleUpload({ file, base64 }) {  // 解构参数获取file和base64
       if (file instanceof File) {
-        this.form.left_eye_image = base64;
+        this.form.left_eye_image = file;
         console.log(base64);
         // console.log(this.form.left_eye_image);
       } else {

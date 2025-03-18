@@ -98,8 +98,8 @@ export default {
 .upload-container {
   position: relative;
   /* 为绝对定位图标提供参照 */
-  width: 250px;
-  height: 250px;
+  width: 225px;
+  height: 225px;
   border: 2px dashed #dcdfe6;
   border-radius: 8px;
   background: #1A1F28;
@@ -122,7 +122,8 @@ export default {
   left: 50%;
   transform: translate(-50%, -50%);
   z-index: 2;
-  opacity: 1; /* 默认显示 */
+  opacity: 1;
+  /* 默认显示 */
   transition: opacity 0.3s;
   cursor: pointer;
   /* 禁止文本选择 */
@@ -140,6 +141,7 @@ export default {
   opacity: 0;
   transition: opacity 0.3s;
 }
+
 /* 有预览图时悬停显示 */
 .upload-container:has(.preview-image):hover .action-icon {
   opacity: 1;
@@ -156,6 +158,7 @@ export default {
   opacity: 0.6;
   cursor: not-allowed;
 }
+
 .image-uploader-container.is-disabled input {
   pointer-events: none;
 }

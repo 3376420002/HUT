@@ -303,11 +303,14 @@ export default {
 
 .button-group button {
   padding: 5px 10px;
+  background-color: #e0ecff;
   border: none;
   cursor: pointer;
   border-radius: 4px;
   white-space: nowrap;
+  /* 禁止文字换行 */
   overflow: hidden;
+  /* 隐藏超出部分 */
   text-overflow: ellipsis;
 }
 
@@ -331,31 +334,42 @@ export default {
 .table-container {
   height: calc(100% - 20px);
   width: 100%;
+  /* 固定表格区域高度 */
   overflow-y: auto;
+  /* 超出高度显示滚动条 */
 }
 
 table {
   border-collapse: collapse;
   table-layout: fixed;
+  /* 固定表格布局，便于控制宽度 */
 }
 
 table th,
 table td {
   border: 1px solid #ccc;
   padding: 2px 4px;
+  /* 进一步减少单元格内边距，使表格更紧凑 */
   text-align: center;
   white-space: nowrap;
+  /* 防止文本换行 */
   font-size: 13px;
+  /* 减小字体大小 */
   overflow: hidden;
   text-overflow: ellipsis;
+  /* 超出内容显示省略号 */
 }
 
 table th {
   width: auto;
+  /* 自动调整表头宽度 */
 }
 
+/* 可以根据需要调整表格整体宽度 */
 .table-container table {
   width: 90%;
+  /* 让表格宽度变小 */
   margin: 0 auto;
+  /* 居中显示 */
 }
 </style>

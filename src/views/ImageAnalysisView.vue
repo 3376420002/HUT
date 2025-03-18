@@ -247,6 +247,12 @@ export default {
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
+.setUp button:hover {
+  background-color: #0056b3;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
 .probabilities {
   padding: 20px;
   border-bottom-right-radius: 10px;
@@ -279,6 +285,7 @@ export default {
 button {
   padding: 10px 15px;
   border: 2px solid transparent;
+  background: #1a1a1a;
   color: #4CAF50;
   border-radius: 4px;
   transition: all 0.3s ease;
