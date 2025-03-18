@@ -1,6 +1,6 @@
 import uvicorn
 
-from api import disease_date_api, paients_api, ai_api
+from api import disease_date_api, paients_api, ai_api,smtp_api
 from fastapi import FastAPI
 from core.config import settings
 from fastapi.middleware.cors import CORSMiddleware
@@ -24,7 +24,7 @@ async def root():
 app.include_router(disease_date_api.router)
 app.include_router(paients_api.router)
 app.include_router(ai_api.router)
-
+app.include_router(smtp_api.router)
 
 
 if __name__ == "__main__":

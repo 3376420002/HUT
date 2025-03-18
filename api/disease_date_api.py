@@ -1,29 +1,17 @@
-from models.entity import *
+import logging
+
 from db.DB import get_db
-
+from models.entity import *
 from fastapi import APIRouter, Depends
-from pydantic import BaseModel
+from models.template import TokenRequest, DiseaseDate
 from sqlalchemy.orm import Session
-
 
 router = APIRouter()
 
 
-class TokenRequest(BaseModel):
-    token: str
-
-
-class DiseaseDate(BaseModel):
-    token: str
-    firstAge: int
-    secondAge: int
-    thirdAge: int
-    fourthAge: int
-    fifthAge: int
-
-
 @router.post('/diseaseDates/getDiseasesDistributio')
 async def disease_date(request: TokenRequest):
+
     return {"token": request.token}
 
 
@@ -40,8 +28,31 @@ async def disease_date(request: DiseaseDate):
 
 
 @router.post('/diseaseDates/getPaientsNum')
-async def disease_date(request: TokenRequest):
-    return {"token": request.token}
+async def disease_date(db: Session = Depends(get_db)) -> dict:
+    try:
+        result = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+        mouth_data = db.query(Paients.time).all()
+        for data in mouth_data:
+            if data[0]:
+                # mouth_time = data[0].sqlit(".")[1]
+                mouth_time = data[0]
+
+                result[int(mouth_time.split(".")[1])-1] += 1
+
+        response = {
+            "code": 1,
+            "message": "成功获取数据",
+            "data": result
+        }
+        logging.info(response)
+    except Exception as e:
+        response = {
+            "code": 0,
+            "message": "获取数据失败",
+            "data": str(e)
+        }
+        logging.error("Error:获取月份患病人数失败",response)
+    return response
 
 
 @router.get('/diseaseDates/gettest')

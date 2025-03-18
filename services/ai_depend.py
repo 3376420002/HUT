@@ -1,5 +1,6 @@
 import http.client
 import json
+import re
 
 
 class ai:
@@ -46,10 +47,8 @@ class ai:
         self.conn.request("POST", "/v1/chat/completions", payload, self.headers)
         data = json.loads(self.conn.getresponse().read().decode("utf-8"))
         content = data["choices"][0]["message"]["content"]
-        content = (content.replace("1.", "###1.")
-                   .replace("2.", "###2.")
-                   .replace("3.", "###3."))
-        return content
+        result = re.sub(r'\d\.', r'###\d\.', content)
+        return result
 
     @classmethod
     async def get_ai_answer(self) -> str:
@@ -83,7 +82,5 @@ class ai:
         self.conn.request("POST", "/v1/chat/completions", payload, self.headers)
         data = json.loads(self.conn.getresponse().read().decode("utf-8"))
         content = data["choices"][0]["message"]["content"]
-        content = (content.replace("1.", "###1.")
-                   .replace("2.", "###2.")
-                   .replace("3.", "###3."))
-        return content
+        result = re.sub(r'\d\.', r'###\d\.', content)
+        return result
