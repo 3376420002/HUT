@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="">
+
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width,initial-scale=1.0">
+  <link rel="icon" href="<%= BASE_URL %>favicon.ico">
+  <title>
+    <%= htmlWebpackPlugin.options.title %>
+  </title>
+  <style>
+    #app{
+      overflow: scroll;
+      height:calc(100vh - 30px);
+    }
+
+    .button-container {
+      display: flex;
+      align-items: center;
+      justify-content: right;
+    }
+
+    .button {
+      width: 40px;
+      height: 30px;
+      cursor: pointer;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .button img {
+      filter: grayscale(100%) brightness(1.2);
+    }
+
+    .button:hover {
+      background-color: rgb(203, 209, 215)
+    }
+
+    .close-button:hover {
+      background-color: red;
+    }
+
+    /* .minimize-button {
+      background-color: yellow;
+    }
+
+    .maximize-button {
+      background-color: green;
+    } */
+  </style>
+</head>
+
+<body>
+  <noscript>
+    <strong>We're sorry but <%= htmlWebpackPlugin.options.title %> doesn't work properly without JavaScript enabled.
+        Please enable it to continue.</strong>
+  </noscript>
+  <div class="button-container">
+    <div class="button minimize-button" id="minimizeButton">
+      <img src="./minimize.png">
+    </div>
+    <div class="button maximize-button" id="maximizeButton">
+      <img src="./maxmize.png" id="maximizeIcon">
+    </div>
+    <div class="button close-button" id="closeButton">
+      <img src="./close.png">
+    </div>
+  </div>
+  <div id="app"></div>
+  <!-- built files will be auto injected -->
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      let windowId;
+      const maximizeIcon = document.getElementById('maximizeIcon');
+      let isMaximized = false;
+      let isDown = false;
+      let baseX = 0, baseY = 0;
+      const buttonContainer = document.querySelector('.button-container');
+
+      window.electronAPI.on('window-object', (data) => {
+        if (data.type === 'window-object') {
+          windowId = data.windowId;
+
+          document.getElementById('closeButton').addEventListener('click', () => {
+            window.electronAPI.performWindowAction(windowId, 'close');
+          });
+
+          document.getElementById('minimizeButton').addEventListener('click', () => {
+            window.electronAPI.performWindowAction(windowId, 'minimize');
+          });
+
+          const maximizeButton = document.getElementById('maximizeButton');
+          maximizeButton.addEventListener('click', () => {
+            window.electronAPI.performWindowAction(windowId, 'maximize');
+            isMaximized = !isMaximized;
+            if (isMaximized) {
+              maximizeIcon.src = './restore.png';
+            } else {
+              maximizeIcon.src = './maxmize.png';
+            }
+          });
+
+          buttonContainer.addEventListener('mousedown', function (e) {
+            isDown = true;
+            baseX = e.x;
+            baseY = e.y;
+          });
+
+          document.addEventListener('mousemove', function (e) {
+            if (isDown) {
+              const scaleFactor = window.devicePixelRatio;
+              const x = (e.screenX - baseX) / scaleFactor;
+              const y = (e.screenY - baseY) / scaleFactor;
+              const width = window.outerWidth;
+              const height = window.outerHeight;
+              window.electronAPI.moveWindow(windowId, x, y, width, height);
+            }
+          });
+
+          document.addEventListener('mouseup', function () {
+            isDown = false;
+          });
+        }
+      });
+    });
+  </script>
+  <!-- built files will be auto injected -->
+</body>
+
+</html>
