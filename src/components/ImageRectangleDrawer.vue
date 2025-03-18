@@ -1037,15 +1037,11 @@ canvas {
 #button-container {
   position: absolute;
   background-color: transparent;
-  /* 灰色背景 */
   width: 100%;
   height: 70px;
-  /* 合适的高度 */
   display: flex;
   justify-content: flex-end;
-  /* 按钮居右显示 */
   align-items: center;
-  /* position: relative; */
 }
 
 #button-container button.active-button {
@@ -1133,7 +1129,6 @@ canvas {
 
 /* 右箭头样式 */
 .right-arrow {
-  right: 5px;
 }
 
 /* 箭头显示时的样式 */

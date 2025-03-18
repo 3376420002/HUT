@@ -1,7 +1,7 @@
 <template>
   <div class="upload-wrapper" :class="{ 'is-disabled': disabled }">
     <div class="upload-container" @dragover.prevent="handleDragOver" @dragleave="handleDragLeave"
-      @drop.prevent="handleDrop" :style="{ borderColor: dragActive ? '#409eff' : '#dcdfe6' }">
+      @drop.prevent="handleDrop" :style="{ borderColor: dragActive ? '#BAE67E' : '#dcdfe6' }">
       <!-- 隐藏原生文件输入控件 -->
       <input type="file" ref="fileInput" hidden accept="image/*" @change="handleFileSelect" :disabled="disabled">
       <img v-if="previewUrl" :src="previewUrl" class="preview-image">
@@ -102,7 +102,7 @@ export default {
   height: 250px;
   border: 2px dashed #dcdfe6;
   border-radius: 8px;
-  background: #fafafa;
+  background: #1A1F28;
   display: flex;
   justify-content: center;
   align-items: center;

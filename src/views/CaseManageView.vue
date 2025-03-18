@@ -15,22 +15,19 @@
             <el-row>
               <!-- 左半部分表单 -->
               <el-col :span="14">
-                <h2>病历信息</h2>
+                <h2 style="color: #d4c7e3;">病历信息</h2>
                 <div class="personal-info-container">
                   <el-form-item label="姓名" prop="name" class="name-item">
-                    <el-input v-model="form.name" placeholder="请输入姓名" />
+                    <el-input v-model="form.name" />
                   </el-form-item>
                   <el-form-item label="年龄" prop="age" class="age-item">
                     <el-input v-model="form.age" @input="handleAgeInput" />
                   </el-form-item>
                   <el-form-item label="性别" prop="gender" class="gender-item">
-                    <el-select v-model="form.gender" placeholder="">
-                      <el-option label="男" value="男" />
-                      <el-option label="女" value="女" />
-                    </el-select>
+                    <el-input v-model="form.gender" />
                   </el-form-item>
                   <el-form-item label="病历号" prop="caseID" class="caseID-item">
-                    <el-input v-model="form.caseID" placeholder="请输入病历号" />
+                    <el-input v-model="form.caseID"  />
                   </el-form-item>
                 </div>
 
@@ -100,9 +97,9 @@
                     :autosize="{ minRows: 4, maxRows: 8 }" />
                 </el-form-item>
                 <!-- 提交pdf按钮 -->
-                <!-- <el-form-item>
-                  <pdf-export-button :form-data="form" />
-                </el-form-item> -->
+                <el-form-item>
+                  <PdfExportButton :form-data="form" />
+                </el-form-item>
               </el-col>
             </el-row>
           </el-form>
@@ -115,10 +112,11 @@
 <script>
 import ImageUploader from '@/components/ImageUploader.vue';
 import AIDialog from '@/components/AIDialog.vue';
+import PdfExportButton from '@/components/PdfExportButton.vue';
 import axios from 'axios'
 export default {
   components: {
-    AIDialog, ImageUploader
+    AIDialog, ImageUploader, PdfExportButton
   },
   data() {
     return {
@@ -227,7 +225,7 @@ export default {
     },
     LHandleUpload({ file, base64 }) {  // 解构参数获取file和base64
       if (file instanceof File) {
-        this.form.left_eye_image = file;
+        this.form.left_eye_image = base64;
         console.log(base64);
         // console.log(this.form.left_eye_image);
       } else {
@@ -268,6 +266,7 @@ export default {
 }
 
 .body {
+  background-color: #1A1F28;
   display: flex;
   height: 100%;
   position: relative;
@@ -398,18 +397,15 @@ export default {
   clear: both;
 }
 
-/* 表单项垂直布局 */
-.el-form-item {
-  margin: 20px 0;
+.el-form-item:deep(.el-textarea__inner),
+.el-form-item:deep(.el-input__inner) {
+  background-color: #1A1F28;
+  color: #d4c7e3;
 }
 
 .el-row {
   display: flex;
   gap: 20px;
-}
-
-.el-textarea {
-  width: 100%;
 }
 
 /* 通用顶部标签样式 */
@@ -424,5 +420,6 @@ export default {
   text-align: left;
   width: 100%;
   padding-left: 0;
+  color: #d4c7e3;
 }
 </style>

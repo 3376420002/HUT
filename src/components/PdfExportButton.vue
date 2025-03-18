@@ -112,6 +112,8 @@ export default {
 .export-button {
     padding: 10px 20px;
     transition: all 0.3s;
+    background-color: #BAE67E;
+    border-color: #67606F;
 }
 
 .export-button:hover {

@@ -10,7 +10,7 @@
             </el-form-item>
 
             <el-form-item label="年龄" prop="age" class="age-item">
-              <el-input v-model="form.age" @input="handleAgeInput" :disabled="!isEditing" />
+              <el-input v-model="form.age" :disabled="!isEditing" />
             </el-form-item>
 
             <el-form-item label="性别" prop="gender" class="gender-item">
@@ -104,7 +104,7 @@ export default {
 /* 每个信息容器独占一行 */
 .personal-info-container {
   display: flex;
-  flex-direction: pow;
+  flex-direction: row;
   width: 100%;
   gap: 20px;
   padding: 0;
@@ -158,12 +158,6 @@ export default {
   text-align: center;
 }
 
-.el-input :deep(.el-input__inner),
-.el-select :deep(.el-select__wrapper) {
-  background-color: var(--bg-color);
-  cursor: var(--cursor-type);
-}
-
 /* 添加图片上传组件禁用样式 */
 .el-form-item.is-disabled .image-uploader-container {
   opacity: 0.6;
@@ -181,16 +175,13 @@ export default {
 
 /* 标签文字颜色 */
 .el-form-item :deep(.el-form-item__label) {
-  color: #CCCCCC !important;
-  /* 浅灰色 */
+  color: #d4c7e3 !important;
 }
 
 /* 输入框文字颜色 */
 .el-input :deep(.el-input__inner) {
-  color: #BAE67E;
-  /* 主题绿色 */
+  color: #d4c7e3;
   background-color: #212733;
-  /* 工具栏背景色 */
 }
 
 /* 按钮颜色 */
@@ -202,7 +193,6 @@ export default {
 
 .el-button--success {
   background-color: #BAE67E !important;
-  /* 主题绿色 */
   border-color: #BAE67E !important;
   color: #1A1F28 !important;
   /* 深色文字 */
