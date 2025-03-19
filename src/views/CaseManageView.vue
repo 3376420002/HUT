@@ -6,7 +6,7 @@
         <AIDialog :shortcutButtons="shortcutButtons" :shortcutFunctions="shortcutFunctions" @CaseAnalysis="caseAnalysis"
           @open="open" @close="close" />
       </div>
-      <div class="right-content" :class="{ 'shrink': isOpen }">
+      <div class="case-content" :class="{ 'shrink': isOpen }">
         <div class="page-content">
           <!-- 页面其他内容
           <h1>页面主要内容</h1>
@@ -32,65 +32,72 @@
                 </div>
 
                 <div class="eye-data-container">
-                  <el-form-item label="左眼视力" prop="left_eye_vision" class="LRyeVision-item">
-                    <el-input v-model="form.left_eye_vision" />
+                  <el-form-item label="左眼视力" prop="leftEyeVision" class="LeftEyeVision-item">
+                    <el-input v-model="form.leftEyeVision" />
                   </el-form-item>
-                  <el-form-item label="右眼视力" prop="right_eye_vision" class="REyeVision-item">
-                    <el-input v-model="form.right_eye_vision" />
+                  <el-form-item label="右眼视力" prop="rightEyeVision" class="REyeVision-item">
+                    <el-input v-model="form.rightEyeVision" />
                   </el-form-item>
-                  <el-form-item label="左眼眼压" prop="left_eye_pressure" class="LEyePressure-item">
-                    <el-input v-model="form.left_eye_pressure" />
+                  <el-form-item label="左眼眼压" prop="leftEyePressure" class="LEyePressure-item">
+                    <el-input v-model="form.leftEyePressure" />
                   </el-form-item>
-                  <el-form-item label="右眼眼压" prop="right_eye_pressure" class="REyePressure-item">
-                    <el-input v-model="form.right_eye_pressure" />
+                  <el-form-item label="右眼眼压" prop="rightEyePressure" class="REyePressure-item">
+                    <el-input v-model="form.rightEyePressure" />
                   </el-form-item>
                 </div>
 
                 <div class="eye-status-container1">
-                  <el-form-item label="眼轴长度" prop="eye_axis_length" class="EyeAxisLength-item">
-                    <el-input v-model="form.eye_axis_length" />
+                  <el-form-item label="眼轴长度" prop="eyeAxisLength" class="EyeAxisLength-item">
+                    <el-input v-model="form.eyeAxisLength" />
                   </el-form-item>
-                  <el-form-item label="角膜曲率" prop="corneal_curvature" class="CornealCurvature-item">
-                    <el-input v-model="form.corneal_curvature" />
+                  <el-form-item label="角膜曲率" prop="cornealCurvature" class="CornealCurvature-item">
+                    <el-input v-model="form.cornealCurvature" />
                   </el-form-item>
-                  <el-form-item label="晶状体混浊程度" prop="lens_clouding" class="LensClouding-item">
-                    <el-input v-model="form.lens_clouding" />
+                  <el-form-item label="晶状体混浊程度" prop="lensClouding" class="LensClouding-item">
+                    <el-input v-model="form.lensClouding" />
                   </el-form-item>
-                  <el-form-item label="视网膜血管情况" prop="retinal_vasculature" class="RetinalVasculature-item">
-                    <el-input v-model="form.retinal_vasculature" />
+                  <el-form-item label="视网膜血管情况" prop="retinalVasculature" class="RetinalVasculature-item">
+                    <el-input v-model="form.retinalVasculature" />
                   </el-form-item>
                 </div>
 
                 <div class="eye-status-container2">
-                  <el-form-item label="黄斑状况" prop="macular_condition" class="MacularCondition-item">
-                    <el-input v-model="form.macular_condition" />
+                  <el-form-item label="黄斑状况" prop="macularCondition" class="MacularCondition-item">
+                    <el-input v-model="form.macularCondition" />
                   </el-form-item>
-                  <el-form-item label="高血压病史" prop="history_of_hypertension" class="HistoryOfHypertension-item">
-                    <el-input v-model="form.history_of_hypertension" />
+                  <el-form-item label="高血压病史" prop="historyOfHypertension" class="HistoryOfHypertension-item">
+                    <el-input v-model="form.historyOfHypertension" />
                   </el-form-item>
-                  <el-form-item label="糖尿病病史" prop="history_of_diabetes" class="HistoryOfDiabetes-item">
-                    <el-input v-model="form.history_of_diabetes" />
+                  <el-form-item label="糖尿病病史" prop="historyOfDiabetes" class="HistoryOfDiabetes-item">
+                    <el-input v-model="form.historyOfDiabetes" />
                   </el-form-item>
                 </div>
 
                 <div class="eye-status-container3">
-                  <el-form-item label="眼底病史" prop="history_of_eye_disease" class="HistoryOfEyeDisease-item">
-                    <el-input v-model="form.history_of_eye_disease" />
+                  <el-form-item label="眼底病史" prop="historyOfEyeDisease" class="HistoryOfEyeDisease-item">
+                    <el-input v-model="form.historyOfEyeDisease" />
                   </el-form-item>
-                  <el-form-item label="家族病史" prop="family_medical_history" class="FamilyMedicalHistory-item">
-                    <el-input v-model="form.family_medical_history" />
+                  <el-form-item label="家族病史" prop="familyMedicalHistory" class="FamilyMedicalHistory-item">
+                    <el-input v-model="form.familyMedicalHistory" />
                   </el-form-item>
                 </div>
+
+                <div class="clinicalDiagnosis-container">
+                  <el-form-item label="临床诊断" prop="clinicalDiagnosis">
+                    <el-input v-model="form.clinicalDiagnosis" />
+                  </el-form-item>
+                </div>
+
               </el-col>
               <!-- 右半部分图片和导出 -->
               <el-col :span="10">
                 <div class="image-container">
-                  <el-form-item label="左眼图片" class="top-label-item">
-                    <image-uploader :isUpload="true" :imageFile="this.form.left_eye_image"
+                  <el-form-item label="左眼图片" class="eyeImageLabel">
+                    <image-uploader :isUpload="true" :imageFile="this.form.leftEyeImageBase64"
                       @file-uploaded="LHandleUpload" />
                   </el-form-item>
-                  <el-form-item label="右眼图片" class="top-label-item">
-                    <image-uploader :isUpload="true" :imageFile="this.form.right_eye_image"
+                  <el-form-item label="右眼图片" class="eyeImageLabel">
+                    <image-uploader :isUpload="true" :imageFile="this.form.rightEyeImageBase64"
                       @file-uploaded="RHandleUpload" />
                   </el-form-item>
                 </div>
@@ -130,24 +137,31 @@ export default {
         age: '',
         gender: '',
         caseID: '',
-        left_eye_vision: '',
-        right_eye_vision: '',
-        left_eye_pressure: '',
-        right_eye_pressure: '',
-        eye_axis_length: '',
-        corneal_curvature: '',
-        lens_clouding: '',
-        retinal_vasculature: '',
-        macular_condition: '',
-        history_of_hypertension: '',
-        history_of_diabetes: '',
-        history_of_eye_disease: '',
-        family_medical_history: '',
+        leftEyeVision: '',
+        rightEyeVision: '',
+        leftEyePressure: '',
+        rightEyePressure: '',
+        eyeAxisLength: '',
+        cornealCurvature: '',
+        lensClouding: '',
+        retinalVasculature: '',
+        macularCondition: '',
+        historyOfHypertension: '',
+        historyOfDiabetes: '',
+        historyOfEyeDisease: '',
+        familyMedicalHistory: '',
         advice: '',
-        left_eye_image: null,
-        right_eye_image: null,
-        left_oct_image: null,
-        right_oct_image: null,
+        diagnoseDoctor: '',
+        diagnoseDate: '',
+        clinicalDiagnosis: '',
+        leftEyeImage: null,//file
+        rightEyeImage: null,
+        leftEyeImageBase64: null,
+        rightEyeImageBase64: null,
+        leftOctImage: null,
+        rightOctImage: null,
+        leftOctImageBase64: null,
+        rightOctImageBase64: null,
       }
     }
   },
@@ -165,19 +179,18 @@ export default {
         const images = this.$route.query.images;
         console.log(images);
         if (choice === 1) {
-          if (images.name == "left") this.form.left_eye_image = images.path;
-          else if (images.name == "right") this.form.right_eye_image = images.path;
-          else if (images.name == "left-oct") this.form.left_oct_image = images.path;
-          else this.form.right_oct_image = images.path;
+          if (images.name == "left") this.form.leftEyeImageBase64 = images.path;
+          else if (images.name == "right") this.form.rightEyeImageBase64 = images.path;
+          else if (images.name == "left-oct") this.form.leftOctImageBase64 = images.path;
+          else this.form.rightOctImageBase64 = images.path;
         } else {
           for (let image of images) {
-            if (image.name == "left") this.form.left_eye_image = image.path;
-            else if (image.name == "right") this.form.right_eye_image = image.path;
-            else if (image.name == "left-oct") this.form.left_oct_image = image.path;
-            else this.form.right_oct_image = image.path;
+            if (image.name == "left") this.form.leftEyeImageBase64 = image.path;
+            else if (image.name == "right") this.form.rightEyeImageBase64 = image.path;
+            else if (image.name == "left-oct") this.form.leftOctImageBase64 = image.path;
+            else this.form.rightOctImageBase64 = image.path;
           }
         }
-        console.log(this.form.left_eye_image);
       }
     },
     InitAdvice() {
@@ -228,17 +241,16 @@ export default {
     },
     LHandleUpload({ file, base64 }) {  // 解构参数获取file和base64
       if (file instanceof File) {
-        this.form.left_eye_image = base64;
-        console.log(base64);
-        // console.log(this.form.left_eye_image);
+        this.form.leftEyeImage = file;
+        this.form.leftEyeImageBase64 = base64;
       } else {
         this.$message.error('文件格式不正确，请上传图片文件');
       }
     },
     RHandleUpload({ file, base64 }) {
       if (file instanceof File) {
-        this.form.right_eye_image = base64;
-        console.log(base64);
+        this.form.rightEyeImage = file;
+        this.form.rightEyeImageBase64 = base64;
       } else {
         this.$message.error('文件格式不正确，请上传图片文件');
       }
@@ -272,6 +284,7 @@ export default {
   background-color: #1A1F28;
   display: flex;
   height: 100%;
+  width: 100%;
   position: relative;
   /* 为父容器添加相对定位 */
 }
@@ -285,7 +298,7 @@ export default {
   position: relative;
 }
 
-.right-content {
+.case-content {
   position: absolute;
   /* 使用绝对定位 */
   top: 0;
@@ -296,7 +309,7 @@ export default {
   /* 添加 left 属性的过渡效果 */
 }
 
-.right-content.shrink {
+.case-content.shrink {
   left: 400px;
   width: calc(100% - 400px);
 }
@@ -391,6 +404,11 @@ export default {
   width: 200px;
 }
 
+.clinicalDiagnosis-container {
+  display: flex;
+  padding: 0;
+  width: 100%;
+}
 
 .image-container {
   display: flex;
@@ -411,8 +429,7 @@ export default {
   gap: 20px;
 }
 
-/* 通用顶部标签样式 */
-.top-label-item {
+.eyeImageLabel {
   display: flex;
   flex-direction: column;
   width: 100%;

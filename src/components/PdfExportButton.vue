@@ -42,7 +42,7 @@ export default {
 
                 // 自动填充文本字段
                 Object.keys(formData).forEach(fieldName => {
-                    if (fieldName.includes('_image')) return; // 跳过所有图片字段
+                    if (fieldName.includes('Image')) return; // 跳过所有图片字段
 
                     try {
                         const field = form.getTextField(fieldName);
@@ -70,12 +70,6 @@ export default {
                             } else {
                                 throw new Error('不支持的图片格式，仅支持JPG/PNG');
                             }
-
-                            // // 获取图片字段的尺寸和位置
-                            // const widget = imageField.acroField.getWidgets()[0];
-                            // const rect = widget.getRectangle();
-
-                            // 将图片设置到图片域中
                             imageField.setImage(image);
                         } catch (error) {
                             console.warn(`图片字段 ${formFieldName} 处理失败:`, error);
@@ -83,21 +77,26 @@ export default {
                     }
                 };
 
-                await handleImageField('left_eye_image', 'left_eye_image_af_image');
-                await handleImageField('right_eye_image', 'right_eye_image_af_image');
+                await handleImageField('leftEyeImage', 'leftEyeImage_af_image');
+                await handleImageField('rightEyeImage', 'rightEyeImage_af_image');
 
                 // 保存PDF
                 const pdfBytes = await pdfDoc.save();
                 const blob = new Blob([pdfBytes], { type: 'application/pdf' });
-                saveAs(blob, `${this.formData.name}_病历报告.pdf`);
+                saveAs(blob, `${this.formData.name}_检查报告.pdf`);
 
             } catch (error) {
-                console.error('生成PDF失败:', error);
                 this.$message.error('生成PDF失败，请稍后重试');
             }
         },
         async readFileAsArrayBuffer(file) {
             return new Promise((resolve, reject) => {
+                // 确保传入的是有效的File对象
+                if (!(file instanceof Blob)) {
+                    reject(new Error('无效的文件类型，请确保上传的是有效的文件对象'));
+                    return;
+                }
+
                 const reader = new FileReader();
                 reader.onload = () => resolve(reader.result);
                 reader.onerror = reject;
