@@ -11,9 +11,9 @@ class Paients(Base):
     age = Column(Integer)
     time = Column(String(50))
     reportId = Column(String(50))
-    leftphoto = Column(Text)
-    rightphoto = Column(Text)
-    outcom = Column(String(50))
+    leftPhoto = Column(Text)
+    rightPhoto = Column(Text)
+    outCome = Column(String(50))
 
 
 # class Paients_report(Base):

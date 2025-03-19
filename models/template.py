@@ -5,10 +5,11 @@ class TokenRequest(BaseModel):
     token: str
 
 
-class DiseaseDate(BaseModel):
+class DiseaseDateAge(BaseModel):
     token: str
     firstAge: int
     secondAge: int
     thirdAge: int
-    fourthAge: int
+    forthAge: int
     fifthAge: int
+
