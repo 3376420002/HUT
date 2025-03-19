@@ -3,6 +3,9 @@
     <button class="back-button" @click="backToHome">
       <img src="@/assets/buttonIcons/back.png">
     </button>
+    <div class="bulkSideBar" v-if="isBulkUpload">
+      这里是批量导入侧边栏
+    </div>
     <div class="left" ref="fullDiv" :class="{ 'fullscreen': isFullscreen }">
       <div id="button-container" ref="buttonContainer">
         <button @click="toggleDrawing" :class="{ 'active-button': isStartDrawRectButtonActive }">
@@ -90,7 +93,7 @@
     </div>
     <div class="right" :style="{ width: `calc(100% - ${computedWidth})`, height: computedHeight }">
       <SideBar ref="sideBar" :images="images" :imagePaths="imagePaths" :imageSrc="imageSrc" :imageChoice="imageChoice"
-        :currentImageIndex="currentImageIndex" :probabilities="probabilities" @rectangleRemoved="handleRectangleRemoved"
+        :currentImageIndex="currentImageIndex" @rectangleRemoved="handleRectangleRemoved"
         @imageIndexChanged="handleImageIndexChanged" @setGenerateStatus="setGenerateStatus" />
     </div>
   </div>
@@ -114,44 +117,48 @@ export default {
     },
     imageSrc: {
       type: String,
-      default: "",
+      default: ""
     },
     canvasWidth: {
       type: [Number, String],
-      default: 800,
+      default: 800
     },
     canvasHeight: {
       type: [Number, String],
-      default: 600,
+      default: 600
     },
     brightnessMin: {
       type: Number,
-      default: -100,
+      default: -100
     },
     brightnessMax: {
       type: Number,
-      default: 100,
+      default: 100
     },
     contrastMin: {
       type: Number,
-      default: -100,
+      default: -100
     },
     contrastMax: {
       type: Number,
-      default: 100,
+      default: 100
     },
     birdseyeWidth: {
       type: Number,
-      default: 150,
+      default: 150
     },
     birdseyeHeight: {
       type: Number,
-      default: 150,
+      default: 150
     },
-    probabilities: {
-      type: Array,
-      default: () => []
+    isBulkUpload: {
+      type: Boolean,
+      default: false
     }
+    // probabilities: {
+    //   type: Array,
+    //   default: () => []
+    // }
   },
   watch: {
     canvasWidth() {
@@ -530,8 +537,11 @@ export default {
       window.addEventListener('keydown', this.handleCtrlAndOne);
       this.$emit("rectangleRemoved", removedRectangle);
     },
+
+    // 需要修改批量逻辑
     confirmRect() {
       // const rectangle = this.rectangles[this.currentRectIndex];
+      // 这里需要修改为依据当前是否为批量上传来决定
       this.$refs.sideBar.addInputElement(this.currentImageIndex);
       // 更新保存信息状态为false，表示当前页面存在数据更新且未保存
       this.setGenerateStatus(false);
@@ -836,27 +846,53 @@ export default {
         this.birdseyeCanvas.width,
         this.birdseyeCanvas.height
       );
-      const birdseyeScaleX = this.birdseyeCanvas.width / this.img.width;
-      const birdseyeScaleY = this.birdseyeCanvas.height / this.img.height;
-      const brightnessFactor = (100 + this.brightness * 0.5) / 100; // 使用调整后的计算方式
-      const contrastFactor = (100 + this.contrast * 0.5) / 100; // 使用调整后的计算方式
+      // const birdseyeScaleX = this.birdseyeCanvas.width / this.img.width;
+      // const birdseyeScaleY = this.birdseyeCanvas.height / this.img.height;
+      const brightnessFactor = (100 + this.brightness * 0.5) / 100;
+      const contrastFactor = (100 + this.contrast * 0.5) / 100;
       this.birdseyeCtx.filter = `brightness(${brightnessFactor}) contrast(${contrastFactor})`;
+      const aspectRatio = this.img.width / this.img.height;
+
+      // 依据画布大小和宽高比计算绘制的宽度和高度
+      let drawWidth, drawHeight;
+      if (this.birdseyeCanvas.width / this.birdseyeCanvas.height > aspectRatio) {
+        // 画布宽度相对较大，以画布高度为基准
+        drawHeight = this.birdseyeCanvas.height;
+        drawWidth = drawHeight * aspectRatio;
+      } else {
+        // 画布高度相对较大，以画布宽度为基准
+        drawWidth = this.birdseyeCanvas.width;
+        drawHeight = drawWidth / aspectRatio;
+      }
+
+      // 计算绘制的起始坐标，使图像居中
+      const x = (this.birdseyeCanvas.width - drawWidth) / 2;
+      const y = (this.birdseyeCanvas.height - drawHeight) / 2;
+
+      // 绘制图像
       this.birdseyeCtx.drawImage(
         this.img,
         0,
         0,
         this.img.width,
         this.img.height,
-        0,
-        0,
-        this.birdseyeCanvas.width,
-        this.birdseyeCanvas.height
+        x,
+        y,
+        drawWidth,
+        drawHeight
       );
       this.birdseyeCtx.filter = "none";
-      const viewportX = (-this.offsetX / this.scale) * birdseyeScaleX;
-      const viewportY = (-this.offsetY / this.scale) * birdseyeScaleY;
-      const viewportWidth = (this.canvas.width / this.scale) * birdseyeScaleX;
-      const viewportHeight = (this.canvas.height / this.scale) * birdseyeScaleY;
+
+      // 计算新的缩放比例，基于实际绘制的图像大小
+      const actualScaleX = drawWidth / this.img.width;
+      const actualScaleY = drawHeight / this.img.height;
+
+      // 计算视口矩形相对于图像的位置和大小
+      const viewportX = (-this.offsetX / this.scale) * actualScaleX + x;
+      const viewportY = (-this.offsetY / this.scale) * actualScaleY + y;
+      const viewportWidth = (this.canvas.width / this.scale) * actualScaleX;
+      const viewportHeight = (this.canvas.height / this.scale) * actualScaleY;
+
       this.birdseyeCtx.strokeStyle = "white";
       this.birdseyeCtx.lineWidth = 2;
       this.birdseyeCtx.strokeRect(
@@ -869,7 +905,7 @@ export default {
     positionBirdseye() {
       const canvasRect = this.canvas.getBoundingClientRect();
       this.$refs.birdseyeContainer.style.left =
-        canvasRect.left +
+        // canvasRect.left +
         canvasRect.width -
         this.birdseyeCanvas.width -
         10 +
@@ -1225,6 +1261,12 @@ input[type="range"]::-moz-range-thumb {
   margin-right: 5px;
   vertical-align: middle;
   /* 将图片的垂直对齐方式设置为中间 */
+}
+
+.bulkSideBar {
+  background-color: #007bff;
+  width: 20%;
+  height: 100%
 }
 
 .legends-container {

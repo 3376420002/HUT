@@ -63,7 +63,7 @@
       </div>
     </div>
     <div v-if="toolChoose === 2" class="ai-suggest">
-      <StatusBar :progresses="probabilities"></StatusBar>
+      <StatusBar :progresses="images[currentImageIndex].probabilities"></StatusBar>
     </div>
     <div class="report-container">
       <hr>
@@ -126,10 +126,10 @@ export default {
       type: Number,
       default: 0
     },
-    probabilities: {
-      type: Array,
-      default: () => []
-    }
+    // probabilities: {
+    //   type: Array,
+    //   default: () => []
+    // }
   },
   data() {
     return {

@@ -14,9 +14,9 @@
         </div>
       </div>
     </div>
-    <div v-else class="progresses-empty">
+    <!-- <div v-else class="progresses-empty">
       启动AI分析以获取结果
-    </div>
+    </div> -->
   </div>
 </template>
 
@@ -158,9 +158,9 @@ export default {
   /* 可根据需要调整字体大小 */
 }
 
-.progresses-empty {
+/* .progresses-empty {
   width:100%;
   text-align: center;
   font-size: 30px;
-}
+} */
 </style>

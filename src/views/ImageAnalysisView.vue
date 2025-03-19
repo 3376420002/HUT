@@ -31,6 +31,7 @@
         </div>
         <div class="results">
           <button @click="observationMode">观察模式</button>
+          <button @click="setBulkStatus">批量上传</button>
         </div>
         <div v-if="hasCommitted" class="images-container">
           <div v-for="(image, index) of imageResult" :key="index" class="images">
@@ -43,8 +44,17 @@
       <div class="setUp">
         <button @click="getResults">{{ setUpName }}</button>
       </div>
-      <div class="probabilities">
-        <StatusBar :progresses="probabilities"></StatusBar>
+      <div class="probabilities" v-if="hasAnalysis">
+        <button v-for="(image, index) in images" :key="index" @click="showProbabilities(index)">
+          显示 {{ image.name }} 的概率
+        </button>
+        <!-- 根据当前激活的索引展示对应的 probabilities -->
+        <div v-if="activeIndex !== null" class="progress">
+          <StatusBar :progresses="images[activeIndex].probabilities"></StatusBar>
+        </div>
+      </div>
+      <div v-else class="progresses-empty">
+        启动AI分析以获取结果
       </div>
     </div>
   </div>
@@ -72,10 +82,35 @@ export default {
       imageFundus: [],//两种眼底图
       imageOCT: [],//两种OCT图像
       hasCommitted: false,//是否已上传    //10:38
+      hasAnalysis: false, //是否分析
       initialImages: [],
       resultImages: [],
       setUpName: "启动AI分析",
-      probabilities: [],
+      activeIndex: 0, //分析部分的按钮选择的下标
+      probabilities: [//新加概率测试数据
+        [
+          { name: "轻度非增生性病变", probability: 1 },
+          { name: "中度非增生性病变", probability: 0.12 },
+          { name: "重度非增生性病变", probability: 0.04 },
+          { name: "增生性病变", probability: 0.03 },
+          { name: "疑似青光眼病变", probability: 0.02 },
+          { name: "早期青光眼", probability: 0.01 },
+          { name: "中期青光眼", probability: 0.01 },
+          { name: "晚期青光眼", probability: 0.01 },
+          { name: "病理性近视", probability: 0.01 }
+        ],
+        [
+          { name: "轻度非增生性病变", probability: 0.88 },
+          { name: "中度非增生性病变", probability: 0.25 },
+          { name: "重度非增生性病变", probability: 0.11 },
+          { name: "增生性病变", probability: 0.09 },
+          { name: "疑似青光眼病变", probability: 0.02 },
+          { name: "早期青光眼", probability: 0.01 },
+          { name: "中期青光眼", probability: 0.01 },
+          { name: "晚期青光眼", probability: 0.01 },
+          { name: "病理性近视", probability: 0.01 }
+        ]
+      ],
       isLoading: false,
       images: [],
       // octImage: [],
@@ -101,6 +136,7 @@ export default {
       // }],
       uploadedImg: [],
       isUploadImg: false,
+      isBulkUpload: false  //是否为批量上传
     };
   },
   methods: {
@@ -111,22 +147,26 @@ export default {
       if (type === 1) {
         this.imageFundus.push({
           name: "left",
-          path: payload.base64
+          path: payload.base64,
+          probabilities: []  //每个图片的概率
         })
       } else if (type === 2) {
         this.imageFundus.push({
           name: "right",
-          path: payload.base64
+          path: payload.base64,
+          probabilities: []
         })
       } else if (type === 3) {
         this.imageOCT.push({
           name: "left-oct",
-          path: payload.base64
+          path: payload.base64,
+          probabilities: []
         })
       } else {
         this.imageOCT.push({
           name: "right-oct",
-          path: payload.base64
+          path: payload.base64,
+          probabilities: []
         })
       }
       this.handleImageUpload();
@@ -153,27 +193,21 @@ export default {
       setTimeout(() => {
         this.isLoading = false;
         this.setUpName = "重新进行分析";
-        this.probabilities = [
-          { name: "轻度非增生性病变", probability: 1 },
-          { name: "中度非增生性病变", probability: 0.12 },
-          { name: "重度非增生性病变", probability: 0.04 },
-          { name: "增生性病变", probability: 0.03 },
-          { name: "疑似青光眼病变", probability: 0.02 },
-          { name: "早期青光眼", probability: 0.01 },
-          { name: "中期青光眼", probability: 0.01 },
-          { name: "晚期青光眼", probability: 0.01 },
-          { name: "病理性近视", probability: 0.01 }
-        ];
+        // 以下为新增以测试每张图片概率
+        for (let [index, probability] of this.probabilities.entries()) {
+          this.images[index].probabilities = probability
+        }
         // this.imagePaths = this.imageResult;
         this.imageResult = this.images;
         this.isUploadImg = true;
+        this.hasAnalysis = true;//是否测试改为true
       }, 3000);
     },
     observationMode() {
       if (!this.isUploadImg) {
         this.$alert('请先上传图片!', '注意', {
           confirmButtonText: '确定',
-          callback: () => {}
+          callback: () => { }
         });
       } else {
         this.$router.push({
@@ -182,10 +216,18 @@ export default {
             images: this.images,
             imagePaths: this.imagePaths,
             imageSrc: this.imageSrc,
-            probabilities: this.probabilities
+            isBulkUpload: this.isBulkUpload
           }
         })
       }
+    },
+    //点击“批量上传”后触发
+    setBulkStatus() {
+      this.isBulkUpload = true;
+    },
+    //点击“显示...概率”按钮时触发切换显示
+    showProbabilities(index) {
+      this.activeIndex = index;
     },
     onRectangleAdded(rectangle) {
       console.log("这是父组件的矩形框添加:", rectangle);
@@ -240,9 +282,19 @@ export default {
 }
 
 .probabilities {
-  padding: 20px;
+  padding: 10px;
   border-bottom-right-radius: 10px;
   text-align: center;
+}
+
+.progress {
+  margin-top: 10px;
+}
+
+.progresses-empty {
+  width: 100%;
+  text-align: center;
+  font-size: 30px;
 }
 
 .images-container {

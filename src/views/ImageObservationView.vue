@@ -1,7 +1,7 @@
 <template>
-  <div>
-    <ImageRectangleDrawer :images="images" :imageSrc="imageSrc" :imagePaths="imagePaths" :canvasWidth="imgWidth" :canvasHeight="imgHeight"
-      :probabilities="probabilities" @rectangleAdded="onRectangleAdded" @rectangleRemoved="onRectangleRemoved" />
+  <div id="ImageObserve">
+    <ImageRectangleDrawer :images="images" :imageSrc="imageSrc" :imagePaths="imagePaths" :canvasWidth="imgWidth"
+     :isBulkUpload="isBulkUpload" :canvasHeight="imgHeight" @rectangleAdded="onRectangleAdded" @rectangleRemoved="onRectangleRemoved" />
   </div>
 </template>
 
@@ -18,7 +18,8 @@ export default {
       images: [],
       imageSrc: "",
       imagePaths: [],
-      probabilities: []
+      // probabilities: [],
+      isBulkUpload: false
     };
   },
   computed: {
@@ -29,11 +30,12 @@ export default {
     //   return window.innerHeight - 50;
     // }
   },
-  created () {
-    this.computedCanvasWidth();
-    this.computedCanvasHeight();
+  created() {
+    // this.computedCanvasWidth();
+    // this.computedCanvasHeight();
+    this.InitBulkUploadStatus()
     this.InitImagePaths();
-    this.InitProbabilities();
+    // this.InitProbabilities();
   },
   mounted() {
     // 在组件挂载时添加 resize 事件监听器
@@ -46,22 +48,33 @@ export default {
   methods: {
     InitImagePaths() {
       if (this.$route.query && this.$route.query.imagePaths) {
-          this.imagePaths = this.$route.query.imagePaths;
+        this.imagePaths = this.$route.query.imagePaths;
       }
       if (this.$route.query && this.$route.query.imageSrc) {
-          this.imageSrc = this.$route.query.imageSrc;
+        this.imageSrc = this.$route.query.imageSrc;
       }
       if (this.$route.query && this.$route.query.images) {
-          this.images = this.$route.query.images;
+        this.images = this.$route.query.images;
       }
     },
-    InitProbabilities() {
-      if (this.$route.query && this.$route.query.probabilities) {
-        this.probabilities = this.$route.query.probabilities;
+    //检测是否是批量上传
+    InitBulkUploadStatus() {
+      if (this.$route.query && this.$route.query.isBulkUpload) {
+        if (this.$route.query.isBulkUpload === "true")
+          this.isBulkUpload = true;
       }
+      console.log(this.isBulkUpload)
+      this.computedCanvasWidth(this.isBulkUpload);
+      this.computedCanvasHeight();
     },
-    computedCanvasWidth() {
-      this.imgWidth = window.innerWidth * 0.7;
+    // InitProbabilities() {
+    //   if (this.$route.query && this.$route.query.probabilities) {
+    //     this.probabilities = this.$route.query.probabilities;
+    //   }
+    // },
+    computedCanvasWidth(mul) {
+      this.imgWidth = window.innerWidth * 0.7 - mul * 100;
+      console.log(this.imgWidth);
     },
     computedCanvasHeight() {
       this.imgHeight = window.innerHeight - 50;
@@ -74,12 +87,18 @@ export default {
       console.log("这是父组件的矩形框删除:", rectangle);
       // 可以在这里添加父组件的处理逻辑，如更新数据等
     },
-    //动态获取视窗大小
+    //根据是否是批量上传动态获取视窗大小
     handleWindowResize() {
-      this.computedCanvasWidth();
+      this.computedCanvasWidth(this.isBulkUpload);
       this.computedCanvasHeight();
-      console.log(this.imgWidth + "+" + this.imgHeight);
+      // console.log(this.imgWidth + "+" + this.imgHeight);
     }
   },
 };
 </script>
+
+<style scoped>
+#ImageObserve {
+  width: 100%
+}
+</style>
