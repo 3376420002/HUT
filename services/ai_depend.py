@@ -14,16 +14,15 @@ class ai:
     conn = http.client.HTTPSConnection("api.chatanywhere.tech")
 
     @classmethod
-    async def call_ai_api(self) -> str:
+    async def call_ai_api(self, age: int, gender: str, outcome: str) -> str:
         """
         调用大模型API，获取诊断建议
         """
 
         prompt = f"""
         我是一名眼科医生，根据以下患者信息，提供诊断建议和治疗流程：
-        年龄：50，性别：男，
-        确诊疾病：糖尿病,
-        疾病阶段：晚期。
+        年龄：{age}，性别：{gender}，
+        确诊疾病：{outcome},
     
         请提供：
         1. 治疗建议

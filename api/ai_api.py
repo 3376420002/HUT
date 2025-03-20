@@ -1,14 +1,26 @@
 import logging
 
-from fastapi import APIRouter
-from services.ai_depend import ai
+from db.DB import get_db
+from fastapi import APIRouter, Depends
 from models.template import TokenRequest
+from models.entity import *
+from services.ai_depend import ai
+from services.jwt_depend import decode_jwt_token
+from sqlalchemy.orm import Session
 
 router = APIRouter()
 
 
 @router.post("/aiSuggestion")
-async def predict(request: TokenRequest):
+async def predict(request: TokenRequest) -> dict:
+    payload = decode_jwt_token(request.token)
+    if not payload:
+        return {
+            "code": 0,
+            "message": "token验证失败",
+            "data": ""
+        }
+
     try:
         logging.info("AI suggestion API called")
         ai_suggestion = await ai.call_ai_api()

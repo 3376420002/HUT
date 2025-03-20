@@ -1,18 +1,25 @@
 import logging
 
-
 from core.config import settings
 from db.DB import get_db
 from models.entity import *
 from fastapi import APIRouter, Depends
 from models.template import TokenRequest, DiseaseDateAge, LoginRequest
+from services.jwt_depend import create_jwt_token, decode_jwt_token
 from sqlalchemy.orm import Session
 
 router = APIRouter()
 
 
 @router.post('/diseaseDates/getPaientsNum')
-async def disease_date(db: Session = Depends(get_db)) -> dict:
+async def disease_date(request: TokenRequest,db: Session = Depends(get_db)) -> dict:
+    payload = decode_jwt_token(request.token)
+    if not payload:
+        return {
+            "code": 0,
+            "message": "token验证失败",
+            "data": ""
+        }
     try:
         result = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
         mouth_data = db.query(Paients.time).all()
@@ -40,7 +47,14 @@ async def disease_date(db: Session = Depends(get_db)) -> dict:
 
 
 @router.post('/diseaseDates/getDiseasesDistribution')
-async def disease_dirtribution(db: Session = Depends(get_db)) -> dict:
+async def disease_dirtribution(request: TokenRequest, db: Session = Depends(get_db)) -> dict:
+    payload = decode_jwt_token(request.token)
+    if not payload:
+        return {
+            "code": 0,
+            "message": "token验证失败",
+            "data": ""
+        }
     try:
         result = [0, 0, 0, 0, 0, 0, 0, 0, 0]
         outcomes = db.query(Paients.outCome).all()
@@ -80,6 +94,13 @@ async def disease_dirtribution(db: Session = Depends(get_db)) -> dict:
 
 @router.post('/diseaseDates/getDiseaseDate')
 async def disease_date(request: DiseaseDateAge, db: Session = Depends(get_db)) -> dict:
+    payload = decode_jwt_token(request.token)
+    if not payload:
+        return {
+            "code": 0,
+            "message": "token验证失败",
+            "data": ""
+        }
     try:
         result = [[0 for _ in range(9)] for _ in range(7)]
         # print(result)
@@ -156,15 +177,17 @@ async def get_token(request: LoginRequest, db: Session = Depends(get_db)) -> dic
     # 实际项目中，token应该由服务端生成，并返回给客户端，客户端需要将token存储在本地，并在每次请求时附带上
     name = request.name
     password = request.password
-    Name,Password = db.query(User.name, User.password).filter(User.name == name).first()
+    Name, Password = db.query(User.name, User.password).filter(User.name == name).first()
+    token = create_jwt_token(name, password)
     if Password == password:
-        response ={
+        response = {
             "code": 1,
             "message": "登录成功",
             "data": {
-                "token": settings.JWT_SECRET_KEY
+                "token": token
             }
         }
+        # print(decode_jwt_token(token))
     else:
         response = {
             "code": 0,

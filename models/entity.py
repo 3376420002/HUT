@@ -16,18 +16,8 @@ class Paients(Base):
     outCome = Column(String(50))
 
 
-# class Paients_report(Base):
-#     __tablename__ = 'paients_report'
-#
-#     reportId = Column(Integer, primary_key=True, index=True)
-#     time = Column(String(50))
-#     status = Column(String(50))
-#     photo = Column(String)
-#     Aiadivice = Column(String(50))
-
-
 class User(Base):
-    __tablename__ = 'user'
+    __tablename__ = 'users'
 
     name = Column(String(20))
     accountId = Column(Integer, primary_key=True, index=True)

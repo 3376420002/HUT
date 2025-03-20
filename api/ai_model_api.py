@@ -3,6 +3,7 @@ import requests
 
 from fastapi import APIRouter
 from models.template import TokenRequest
+from services.jwt_depend import decode_jwt_token
 
 
 router = APIRouter()
@@ -10,7 +11,13 @@ router = APIRouter()
 
 @router.post("/aibo")
 async def predict(request: TokenRequest) -> dict:
-    logging.info(f"Received request: {request}")
+    payload = decode_jwt_token(request.token)
+    if not payload:
+        return {
+            "code": 0,
+            "message": "token验证失败",
+            "data": ""
+        }
     # request = requests.get("http://192.168.1.202:5000/api/fundus_analysi")
     # if request.status_code == 200:
     if 1 == 1:

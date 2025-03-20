@@ -9,9 +9,9 @@ from email.header import Header
 class Email:
 
     @classmethod
-    async def sendEmail(self) -> bool:
+    async def sendEmail(self, account: str) -> bool:
         # 邮件内容
-        receivers = ["2725176570@qq.com"]  # 收件人邮箱地址
+        receivers = [account]  # 收件人邮箱地址
 
         # 邮件内容
         msg = f"""

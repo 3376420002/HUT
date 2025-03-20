@@ -1,16 +1,15 @@
 import logging
 
 from fastapi import APIRouter
-from models.template import TokenRequest
 from services.QQsmtp_depend import Email
 
 router = APIRouter()
 
 
 @router.post('/sendEmail')
-async def send_email(token: TokenRequest):
+async def send_email(account: str):
     try:
-        flag = await Email.sendEmail()
+        flag = await Email.sendEmail(account)
         if flag:
             response = {
                 "code": 1,
