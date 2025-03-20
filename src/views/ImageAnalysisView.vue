@@ -114,8 +114,8 @@ export default {
       isLoading: false,
       images: [],
       // octImage: [],
-      imageSrc: "",
-      imagePaths: [],
+      // imageSrc: "",
+      // imagePaths: [],
       imageResult: [],
       // imageResult: [{
       //   name: "oct",
@@ -146,24 +146,28 @@ export default {
     imageUpload(payload, type) {
       if (type === 1) {
         this.imageFundus.push({
+          index: 1,
           name: "left",
           path: payload.base64,
           probabilities: []  //每个图片的概率
         })
       } else if (type === 2) {
         this.imageFundus.push({
+          index: 2,
           name: "right",
           path: payload.base64,
           probabilities: []
         })
       } else if (type === 3) {
         this.imageOCT.push({
+          index: 2,
           name: "left-oct",
           path: payload.base64,
           probabilities: []
         })
       } else {
         this.imageOCT.push({
+          index: 3,
           name: "right-oct",
           path: payload.base64,
           probabilities: []
@@ -347,7 +351,7 @@ button:hover {
 /* 移除之前的after伪元素相关样式 */
 
 /* 响应式设计 */
-@media (max-width: 768px) {
+/* @media (max-width: 768px) {
   .button-group {
     grid-template-columns: repeat(2, 1fr);
   }
@@ -370,5 +374,5 @@ button:hover {
     padding: 12px;
     font-size: 0.85em;
   }
-}
+} */
 </style>

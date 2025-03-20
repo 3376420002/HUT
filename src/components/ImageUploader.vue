@@ -43,7 +43,7 @@ export default {
     imageFile: {
       handler(newValue) {
         this.previewUrl = newValue;
-        console.log(this.previewUrl);
+        // console.log(this.previewUrl);
       },
       deep: true
     }

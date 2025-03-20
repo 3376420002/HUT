@@ -154,21 +154,25 @@ export default {
         diagnoseDoctor: '',
         diagnoseDate: '',
         clinicalDiagnosis: '',
-        leftEyeImage: null,//file
-        rightEyeImage: null,
+        // leftEyeImage: null,//file
+        // rightEyeImage: null,
         leftEyeImageBase64: null,
         rightEyeImageBase64: null,
-        leftOctImage: null,
-        rightOctImage: null,
+        // leftOctImage: null,
+        // rightOctImage: null,
         leftOctImageBase64: null,
         rightOctImageBase64: null,
       }
     }
   },
-  created() {
+  activated(){
     this.InitCase();
     this.InitAdvice();
   },
+  // created() {
+  //   this.InitCase();
+  //   this.InitAdvice();
+  // },
   mounted() {
 
   },
@@ -179,8 +183,14 @@ export default {
         const images = this.$route.query.images;
         console.log(images);
         if (choice === 1) {
-          if (images.name == "left") this.form.leftEyeImageBase64 = images.path;
-          else if (images.name == "right") this.form.rightEyeImageBase64 = images.path;
+          if (images.name == "left") {
+            this.form.leftEyeImageBase64 = images.path;
+            // this.form.leftEyeImage = this.base64ToFile(images.path, "leftEye");
+          }
+          else if (images.name == "right") {
+            this.form.rightEyeImageBase64 = images.path;
+            // this.form.rightEyeImage = this.base64ToFile(images.path, "rightEye");
+          }
           else if (images.name == "left-oct") this.form.leftOctImageBase64 = images.path;
           else this.form.rightOctImageBase64 = images.path;
         } else {
@@ -196,12 +206,13 @@ export default {
     InitAdvice() {
       if (this.$route.query && this.$route.query.inputs) {
         const inputElements = this.$route.query.inputs;
+        const validInputElements = Array.isArray(inputElements) ? inputElements : [];
         const groupedData = {
           "左眼": [],
           "右眼": []
         };
         // 对 inputElements 进行分类
-        inputElements.forEach(item => {
+        validInputElements.forEach(item => {
           if (item.name === "left" || item.name === "left - oct") {
             groupedData["左眼"] = groupedData["左眼"].concat(item.inputs.map(input => input.value));
           } else if (item.name === "right" || item.name === "right - oct") {
@@ -241,7 +252,7 @@ export default {
     },
     LHandleUpload({ file, base64 }) {  // 解构参数获取file和base64
       if (file instanceof File) {
-        this.form.leftEyeImage = file;
+        // this.form.leftEyeImage = file;
         this.form.leftEyeImageBase64 = base64;
       } else {
         this.$message.error('文件格式不正确，请上传图片文件');
@@ -249,12 +260,30 @@ export default {
     },
     RHandleUpload({ file, base64 }) {
       if (file instanceof File) {
-        this.form.rightEyeImage = file;
+        // this.form.rightEyeImage = file;
         this.form.rightEyeImageBase64 = base64;
       } else {
         this.$message.error('文件格式不正确，请上传图片文件');
       }
     },
+    // base64ToFile(base64, filename) {
+    //   // 提取 MIME 类型
+    //   const mimeType = base64.match(/^data:([^;]+);base64,/)[1];
+    //   const sliceSize = 512;
+    //   const byteCharacters = atob(base64.split(',')[1]);
+    //   const byteArrays = [];
+    //   for (let offset = 0; offset < byteCharacters.length; offset += sliceSize) {
+    //     const slice = byteCharacters.slice(offset, offset + sliceSize);
+    //     const byteNumbers = new Array(slice.length);
+    //     for (let i = 0; i < slice.length; i++) {
+    //       byteNumbers[i] = slice.charCodeAt(i);
+    //     }
+    //     const byteArray = new Uint8Array(byteNumbers);
+    //     byteArrays.push(byteArray);
+    //   }
+    //   const blob = new Blob(byteArrays, { type: mimeType });
+    //   return new File([blob], filename, { type: mimeType });
+    // },
     handleAgeInput(value) {//浏览器所有输入的返回都是字符串
       if (!/^(1[0-1][0-9]|120|[1-9][0-9]?)$/.test(value)) {
         this.form.age = value.replace(/[^\d]/g, '')

@@ -3,9 +3,6 @@
     <button class="back-button" @click="backToHome">
       <img src="@/assets/buttonIcons/back.png">
     </button>
-    <div class="bulkSideBar" v-if="isBulkUpload">
-      这里是批量导入侧边栏
-    </div>
     <div class="left" ref="fullDiv" :class="{ 'fullscreen': isFullscreen }">
       <div id="button-container" ref="buttonContainer">
         <button @click="toggleDrawing" :class="{ 'active-button': isStartDrawRectButtonActive }">
@@ -60,7 +57,7 @@
         <input type="range" id="contrast-slider" ref="contrastSlider" :min="contrastMin" :max="contrastMax"
           v-model="contrast" @input="handleContrastChange" />
       </div>
-      <canvas ref="imageCanvas" :width="computedWidth" :height="computedHeight"></canvas>
+      <canvas ref="imageCanvas" :width="computedWidth" :height="computedHeight" style="border: none;"></canvas>
       <!-- 悬浮图例 -->
       <div class="legends-container"
         v-if="(imageChoice == 1 && imageSrc.hasLegend) || (imageChoice == 2 && images[currentImageIndex].hasLegend) || (imageChoice == 3 && imagePaths[currentImageIndex].hasLegend)">
@@ -155,10 +152,6 @@ export default {
       type: Boolean,
       default: false
     }
-    // probabilities: {
-    //   type: Array,
-    //   default: () => []
-    // }
   },
   watch: {
     canvasWidth() {
@@ -168,6 +161,12 @@ export default {
     canvasHeight() {
       this.heightChanged = true;
       this.checkAndUpdateCanvas();
+    },
+    images() {
+      this.InitImg();
+    },
+    imagePaths() {
+      this.InitImg();
     }
   },
   data() {
@@ -237,20 +236,7 @@ export default {
     this.birdseyeCanvas = this.$refs.birdseyeView;
     this.birdseyeCtx = this.birdseyeCanvas.getContext("2d");
     this.buttonTools = this.$refs.buttonContainer;
-    let imgUrl;
-    if (this.imageSrc) {
-      imgUrl = this.imageSrc;
-      this.imageChoice = 1;
-    } else if (this.images.length > 0) {
-      imgUrl = this.images[0].path;
-      this.imageChoice = 2;
-    } else if (this.imagePaths.length > 0) {
-      imgUrl = this.imagePaths[0].path;
-      this.imageChoice = 3;
-    }
-    if (imgUrl) {
-      this.loadImg(imgUrl);
-    }
+    this.InitImg();
     this.canvas.addEventListener("wheel", this.handleWheel);
     this.canvas.addEventListener("mousedown", this.handleMouseDown);
     this.canvas.addEventListener('mousemove', this.handleMouseMove);
@@ -299,6 +285,18 @@ export default {
         this.$router.push("/analyses")
       }
     },
+    InitImg() {
+      if (this.imageSrc) {
+        this.imageChoice = 1;
+      } else if (this.images.length > 0) {
+        this.imageChoice = 2;
+      } else if (this.imagePaths.length > 0) {
+        this.imageChoice = 3;
+      }
+      this.currentImageIndex = 0;
+      this.entryLoadImg();
+      this.initRectangles();
+    },
     entryLoadImg() {
       if (this.imageChoice == 1) {
         this.loadImg(this.imageSrc);
@@ -312,11 +310,15 @@ export default {
     checkAndUpdateCanvas() {
       if (this.widthChanged || this.heightChanged) {
         this.$nextTick(() => {
+          // console.log(this.computedHeight);
+          // console.log(this.computedWidth);
           this.$refs.imageCanvas.style.width = `${this.computedWidth}px`;
           this.$refs.imageCanvas.style.height = `${this.computedHeight}px`;
           // 重新计算canvas的实际宽度和高度
           this.canvas.width = this.$refs.imageCanvas.offsetWidth;
           this.canvas.height = this.$refs.imageCanvas.offsetHeight;
+          console.log(this.computedWidth)
+          console.log(this.$refs.imageCanvas.style.width)
           this.entryLoadImg();
           // 重置状态
           this.widthChanged = false;
@@ -1261,12 +1263,6 @@ input[type="range"]::-moz-range-thumb {
   margin-right: 5px;
   vertical-align: middle;
   /* 将图片的垂直对齐方式设置为中间 */
-}
-
-.bulkSideBar {
-  background-color: #007bff;
-  width: 20%;
-  height: 100%
 }
 
 .legends-container {

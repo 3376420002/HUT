@@ -1,13 +1,13 @@
 <template>
   <div id="bulkBar">
     <div class="thumbnail">
-      <!-- 根据条件显示二进制图片或路径图片 -->
-      <template v-if="images.length > 0">
-        <!-- 这一行需要修改image为对象 -->
-        <img v-for="(image, index) in images" :key="index" :src="image.path" class="thumbnail-image"
-          :class="{ 'selected-thumbnail': currentImageIndex === index }" alt="Thumbnail"
-          @click="handleThumbnailClick(index)">
-      </template>
+      <div v-for="(group, groupIndex) in groupedImages" :key="groupIndex">
+        <div class="image-row">
+          <img v-for="(image, index) in group" :key="index" :src="image.path" class="thumbnail-image"
+            :class="{ 'selected-thumbnail': currentImageIndex === index }" alt="Thumbnail"
+            @click="handleThumbnailClick(index)">
+        </div>
+      </div>
     </div>
   </div>
 </template>
@@ -36,13 +36,35 @@ export default {
       default: 0
     }
   },
+  data() {
+    return {
+
+    }
+  },
+  computed: {
+    groupedImages() {
+      const groups = {};
+      this.images.forEach((image) => {
+        if (!groups[image.index]) {
+          groups[image.index] = [];
+        }
+        groups[image.index].push(image);
+      });
+      return Object.values(groups);
+    }
+  },
+  methods: {
+    handleThumbnailClick(index) {
+      this.currentImageIndex = index;
+    }
+  }
 }
 </script>
 
 <style scoped>
-#bulkBar{
-  width:100%;
-  height:100%;
+#bulkBar {
+  width: 100%;
+  height: 100%;
 }
 
 .thumbnail {

@@ -227,7 +227,13 @@ export default {
   },
   watch: {
     // 监听 images 和 imagePaths 的变化
-    $: {
+    images: {
+      deep: true,
+      handler() {
+        this.updateInputElementsLength();
+      }
+    },
+    imagePaths: {
       deep: true,
       handler() {
         this.updateInputElementsLength();
