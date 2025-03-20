@@ -2,39 +2,54 @@
   <div id="imageAnalysis" v-loading.lock="isLoading" element-loading-text="正在分析">
     <div class="submit-and-results">
       <div class="submit">
-        <div class="tool-bar">
-          <div class="button-group">
-            <button class="fundus-btn" @click="addImageUploader(1)" :class="{ active: imageKind[1] }">
-              <span class="short-text">左眼底</span>
-              <span class="full-text">左眼眼底图</span>
+        <!-- 单张点击上传 -->
+        <div v-if="!isBulkUpload" class="imageSelectorContainer">
+          <div class="imageSelector">
+            <button @click="ImageUploaderButton(1)" :class="{ active: imageKind[1] }">
+              <span>左眼眼底图</span>
             </button>
-            <button class="fundus-btn" @click="addImageUploader(2)" :class="{ active: imageKind[2] }">
-              <span class="short-text">右眼底</span>
-              <span class="full-text">右眼眼底图</span>
+            <button @click="ImageUploaderButton(2)" :class="{ active: imageKind[2] }">
+              <span>右眼眼底图</span>
             </button>
-            <button class="oct-btn" @click="addImageUploader(3)" :class="{ active: imageKind[3] }">
-              <span class="short-text">左OCT</span>
-              <span class="full-text">左眼OCT图像</span>
+            <button @click="ImageUploaderButton(3)" :class="{ active: imageKind[3] }">
+              <span>左眼OCT图像</span>
             </button>
-            <button class="oct-btn" @click="addImageUploader(4)" :class="{ active: imageKind[4] }">
-              <span class="short-text">右OCT</span>
-              <span class="full-text">右眼OCT图像</span>
+            <button @click="ImageUploaderButton(4)" :class="{ active: imageKind[4] }">
+              <span>右眼OCT图像</span>
             </button>
           </div>
         </div>
-        <div class="images-container">
+        <!-- 单张上传预览 -->
+        <div v-if="!isBulkUpload" class="imageContainer">
           <div v-for="index in 4" :key="index">
             <div v-if="imageKind[index]" class="images">
               <ImageUploader :isUpload="true" @file-uploaded="(payload) => imageUpload(payload, index)" />
             </div>
           </div>
         </div>
-        <div class="results">
-          <button @click="observationMode">观察模式</button>
-          <button @click="setBulkStatus">批量上传</button>
+        <!--批量上传预览-->
+        <div v-if="isBulkUpload" class="bulkImageContainer">
+          <button @click="prevPage" :disabled="currentPage === 0">L</button>
+          <div class="imageContainer">
+            <div v-for="(image, index) of currentCommittedImages" :key="index" class="images">
+              <ImageUploader :imageFile="image.path" />
+            </div>
+          </div>
+          <button @click="nextPage" :disabled="currentPage === totalPages">R</button>
         </div>
-        <div v-if="hasCommitted" class="images-container">
+      </div>
+      <!-- 单张结果图 -->
+      <div v-if="!isBulkUpload" class="results">
+        <div v-if="hasCommitted" class="imageContainer">
           <div v-for="(image, index) of imageResult" :key="index" class="images">
+            <ImageUploader :imageFile="image.path" />
+          </div>
+        </div>
+      </div>
+      <!--批量上传结果图-->
+      <div v-if="isBulkUpload" class="results">
+        <div v-if="hasCommitted" class="imageContainer">
+          <div v-for="(image, index) of currentResultImages" :key="index" class="images">
             <ImageUploader :imageFile="image.path" />
           </div>
         </div>
@@ -42,6 +57,11 @@
     </div>
     <div class="states">
       <div class="setUp">
+        <button @click="observationMode">观察模式</button>
+        <!-- 隐藏的原生文件输入 -->
+        <input type="file" webkitdirectory directory multiple @change="startBulkUpload" hidden ref="folderInput">
+        <button @click="$refs.folderInput.click(), setBulkStatus()"> 批量上传 </button>
+        <button @click=" setBulkStatus()">单张上传</button>
         <button @click="getResults">{{ setUpName }}</button>
       </div>
       <div class="probabilities" v-if="hasAnalysis">
@@ -82,41 +102,17 @@ export default {
       imageFundus: [],//两种眼底图
       imageOCT: [],//两种OCT图像
       hasCommitted: false,//是否已上传    //10:38
-      hasAnalysis: false, //是否分析
+      hasAnalysis: false,//是否已分析
       initialImages: [],
       resultImages: [],
       setUpName: "启动AI分析",
       activeIndex: 0, //分析部分的按钮选择的下标
-      probabilities: [//新加概率测试数据
-        [
-          { name: "轻度非增生性病变", probability: 1 },
-          { name: "中度非增生性病变", probability: 0.12 },
-          { name: "重度非增生性病变", probability: 0.04 },
-          { name: "增生性病变", probability: 0.03 },
-          { name: "疑似青光眼病变", probability: 0.02 },
-          { name: "早期青光眼", probability: 0.01 },
-          { name: "中期青光眼", probability: 0.01 },
-          { name: "晚期青光眼", probability: 0.01 },
-          { name: "病理性近视", probability: 0.01 }
-        ],
-        [
-          { name: "轻度非增生性病变", probability: 0.88 },
-          { name: "中度非增生性病变", probability: 0.25 },
-          { name: "重度非增生性病变", probability: 0.11 },
-          { name: "增生性病变", probability: 0.09 },
-          { name: "疑似青光眼病变", probability: 0.02 },
-          { name: "早期青光眼", probability: 0.01 },
-          { name: "中期青光眼", probability: 0.01 },
-          { name: "晚期青光眼", probability: 0.01 },
-          { name: "病理性近视", probability: 0.01 }
-        ]
-      ],
+      probabilities: [],
       isLoading: false,
       images: [],
-      // octImage: [],
+      imageResult: [],
       // imageSrc: "",
       // imagePaths: [],
-      imageResult: [],
       // imageResult: [{
       //   name: "oct",
       //   path: textImage2,
@@ -134,13 +130,95 @@ export default {
       //     { "color": "#3399FF", "name": "宁静海蓝" }
       //   ]
       // }],
-      uploadedImg: [],
+      // uploadedImg: [],
       isUploadImg: false,
-      isBulkUpload: false  //是否为批量上传
+      isBulkUpload: false,  //是否为批量上传
+      currentPage: 0//批量上传时的预览页码
     };
   },
+  computed: {
+    totalPages() {
+      return Math.ceil(this.images.length / 2) - 1;
+    },
+    currentCommittedImages() {
+      const start = this.currentPage * 2;
+      return this.images.slice(start, start + 2);
+    },
+    currentResultImages() {
+      const start = this.currentPage * 2;
+      return this.imageResult.slice(start, start + 2);
+    }
+  },
   methods: {
-    addImageUploader(type) {//10:38
+    //批量上传左切预览图
+    prevPage() {
+      if (this.currentPage > 0) {
+        this.currentPage--;
+      }
+    },
+    //批量上传右切预览图
+    nextPage() {
+      if (this.currentPage < this.totalPages) {
+        this.currentPage++;
+      }
+    },
+    //点击切换上传模式
+    setBulkStatus() {
+      this.isBulkUpload = !this.isBulkUpload;
+    },
+    //多张上传
+    async startBulkUpload(event) {
+      this.isBulkUpload = true;
+      const files = Array.from(event.target.files);
+      const folderStructure = {};
+      let idx = 1;
+      files.forEach(file => {
+        const pathParts = file.webkitRelativePath.split('/');
+        if (pathParts.length <= 2) {
+          this.fff = file;//无效语句，如果不是子文件夹文件or空文件夹，就不放入数组
+        }
+        else {
+          const folderName = pathParts[1];//子文件夹名称
+          //索引作为名称,如果遍历到新文件夹，创建一个存储数组
+          if (!folderStructure[folderName]) {
+            folderStructure[folderName] = [];
+          }
+          folderStructure[folderName].push(file);
+        }
+      });
+
+      if (Object.entries(folderStructure).length) {//有新数据才置空
+        this.images = [];
+        this.resultImages = [];
+        this.hasCommitted = false;
+        this.currentPage = 0;
+      }
+      //每一个子文件夹的图片
+      for (const [folderName, files] of Object.entries(folderStructure)) {
+        this.folderName = folderName;
+        for (const file of files) {
+          const base64 = await this.readFileAsBase64(file);
+          this.images.push({
+            index: idx,
+            path: base64,
+            probabilities: []
+          });
+        }
+        idx++;
+      }
+      // 根据索引排序
+      this.images.sort((a, b) => a.index - b.index);
+    },
+    // 文件转Base64
+    async readFileAsBase64(file) {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result);
+        reader.onerror = error => reject(error);
+        reader.readAsDataURL(file);
+      });
+    },
+    ImageUploaderButton(type) {//10:38
       this.imageKind[type] = !this.imageKind[type];
     },
     imageUpload(payload, type) {
@@ -149,7 +227,7 @@ export default {
           index: 1,
           name: "left",
           path: payload.base64,
-          probabilities: []  //每个图片的概率
+          probabilities: []
         })
       } else if (type === 2) {
         this.imageFundus.push({
@@ -160,14 +238,14 @@ export default {
         })
       } else if (type === 3) {
         this.imageOCT.push({
-          index: 2,
+          index: 3,
           name: "left-oct",
           path: payload.base64,
           probabilities: []
         })
       } else {
         this.imageOCT.push({
-          index: 3,
+          index: 4,
           name: "right-oct",
           path: payload.base64,
           probabilities: []
@@ -182,14 +260,6 @@ export default {
       ];
       this.isUploadImg = true;
     },//10:38
-    InitImagePaths() {
-
-    },
-    uploadImages() {
-      this.imagePaths = this.uploadedImg;
-      console.log(Array.isArray(this.imagePaths))
-      // this.hasCommitted = true;
-    },
     async getResults() {
       this.isLoading = true;
       this.hasCommitted = true;
@@ -197,11 +267,18 @@ export default {
       setTimeout(() => {
         this.isLoading = false;
         this.setUpName = "重新进行分析";
-        // 以下为新增以测试每张图片概率
-        for (let [index, probability] of this.probabilities.entries()) {
-          this.images[index].probabilities = probability
-        }
-        // this.imagePaths = this.imageResult;
+        // this.probabilities = [
+        //   { name: "轻度非增生性病变", probability: 1 },
+        //   { name: "中度非增生性病变", probability: 0.12 },
+        //   { name: "重度非增生性病变", probability: 0.04 },
+        //   { name: "增生性病变", probability: 0.03 },
+        //   { name: "疑似青光眼病变", probability: 0.02 },
+        //   { name: "早期青光眼", probability: 0.01 },
+        //   { name: "中期青光眼", probability: 0.01 },
+        //   { name: "晚期青光眼", probability: 0.01 },
+        //   { name: "病理性近视", probability: 0.01 }
+        // ];
+        // // this.imagePaths = this.imageResult;
         this.imageResult = this.images;
         this.isUploadImg = true;
         this.hasAnalysis = true;//是否测试改为true
@@ -220,18 +297,10 @@ export default {
             images: this.images,
             imagePaths: this.imagePaths,
             imageSrc: this.imageSrc,
-            isBulkUpload: this.isBulkUpload
+            probabilities: this.probabilities
           }
         })
       }
-    },
-    //点击“批量上传”后触发
-    setBulkStatus() {
-      this.isBulkUpload = true;
-    },
-    //点击“显示...概率”按钮时触发切换显示
-    showProbabilities(index) {
-      this.activeIndex = index;
     },
     onRectangleAdded(rectangle) {
       console.log("这是父组件的矩形框添加:", rectangle);
@@ -240,7 +309,11 @@ export default {
     onRectangleRemoved(rectangle) {
       console.log("这是父组件的矩形框删除:", rectangle);
       // 可以在这里添加父组件的处理逻辑，如更新数据等
-    }
+    },
+    //点击“显示...概率”按钮时触发切换显示
+    showProbabilities(index) {
+      this.activeIndex = index;
+    },
   },
 };
 </script>
@@ -255,7 +328,19 @@ export default {
 .submit-and-results {
   width: 70%;
   border: 2px solid black;
+  background-color: #1A1F28;
   border-bottom-left-radius: 10px;
+}
+
+.submit {
+  width: 100%;
+  height: 50%;
+  border-bottom: 2px dashed #cccccc60;
+}
+
+.results {
+  width: 100%;
+  height: 50%;
 }
 
 .states {
@@ -263,32 +348,36 @@ export default {
   border: 2px solid black;
   /* background: linear-gradient(135deg, #e0f7fa 0%, #e8f5e9 100%); */
   /* background: linear-gradient(135deg, #fff8e1 0%, #e1f5fe 100%); */
-  background: linear-gradient(135deg, #f5f5f5 0%, #e3f2fd 100%);
+  /* background: linear-gradient(135deg, #f5f5f5 0%, #e3f2fd 100%); */
+  background-color: #1A1F28;
   border-bottom-right-radius: 10px;
 }
 
 .setUp {
-  padding: 20px;
-  height: 10%;
+  display: flex;
+  height: 15%;
   border-bottom: 2px solid black;
+  align-items: center;
+  justify-content: center;
 }
 
-.setUp button {
+/* .setUp button {
   width: 100%;
   padding: 10px 20px;
-  background-color: #007bff;
-  color: white;
+  background-color: #CCCCCC;
+  color: #528708;
   border: none;
   border-radius: 5px;
   cursor: pointer;
   transition: background-color 0.3s ease, transform 0.3s ease;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-}
+} */
 
 .probabilities {
-  padding: 10px;
+  padding: 20px;
   border-bottom-right-radius: 10px;
   text-align: center;
+  color: #CCCCCC;
 }
 
 .progress {
@@ -301,26 +390,26 @@ export default {
   font-size: 30px;
 }
 
-.images-container {
+.imageContainer,
+.bulkImageContainer {
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
 .images {
-  margin: 0 15px 0 15px;
+  margin: 0 12px 0 12px;
 }
 
 /* 新增按钮样式 */
-.tool-bar {
+.imageSelectorContainer {
   padding: 15px;
   background: rgba(0, 0, 0, 0.1);
   border: 1px solid rgba(0, 0, 0, 0.1);
   border-radius: 8px;
-  margin: 15px;
 }
 
-.button-group {
+.imageSelector {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: 10px;
@@ -330,6 +419,7 @@ button {
   padding: 10px 15px;
   border: 2px solid transparent;
   color: #4CAF50;
+  background-color: #CCCCCC;
   border-radius: 4px;
   transition: all 0.3s ease;
   position: relative;
@@ -340,39 +430,11 @@ button.active {
   background: #2d2d2d;
   border: 2px solid #4CAF50;
   box-shadow: 0 0 10px rgba(76, 175, 80, 0.4);
-  transform: scale(1.05);
+  transform: scale(1.04);
 }
 
 button:hover {
   background: #2d2d2d;
   border-color: #4CAF50;
 }
-
-/* 移除之前的after伪元素相关样式 */
-
-/* 响应式设计 */
-/* @media (max-width: 768px) {
-  .button-group {
-    grid-template-columns: repeat(2, 1fr);
-  }
-
-  .short-text {
-    display: inline;
-  }
-
-  .full-text {
-    display: none;
-  }
-}
-
-@media (max-width: 480px) {
-  .button-group {
-    grid-template-columns: 1fr;
-  }
-
-  button {
-    padding: 12px;
-    font-size: 0.85em;
-  }
-} */
 </style>

@@ -42,7 +42,6 @@
             </el-form-item>
           </div>
         </el-col>
-
       </el-row>
     </el-form>
 
@@ -75,21 +74,11 @@ export default {
       }
     }
   },
-  computed: {
-    cssVars() {
-      return {
-        '--bg-color': this.isEditing ? '#fff' : '#f5f7fa',
-        '--cursor-type': this.isEditing ? 'text' : 'not-allowed'
-      }
-    }
-  },
   methods: {
     enableEditing() {
       this.isEditing = true
     },
     submitForm() {
-      // 这里添加提交逻辑
-      console.log('提交表单:', this.form)
       this.isEditing = false
     },
     imageUpload({ file, base64 }) {
@@ -109,26 +98,26 @@ export default {
   gap: 20px;
   padding: 0;
   clear: both;
+}
 
-  .name-item {
-    width: 150px;
-  }
+.name-item {
+  width: 150px;
+}
 
-  .age-item {
-    width: 60px;
-  }
+.age-item {
+  width: 60px;
+}
 
-  .gender-item {
-    width: 75px;
-  }
+.gender-item {
+  width: 75px;
+}
 
-  .doctorID-item {
-    width: 200px;
-  }
+.doctorID-item {
+  width: 200px;
+}
 
-  .department-item {
-    width: 200px;
-  }
+.department-item {
+  width: 200px;
 }
 
 .image-container {
