@@ -1,9 +1,11 @@
 import logging
 
+
+from core.config import settings
 from db.DB import get_db
 from models.entity import *
 from fastapi import APIRouter, Depends
-from models.template import TokenRequest, DiseaseDateAge
+from models.template import TokenRequest, DiseaseDateAge, LoginRequest
 from sqlalchemy.orm import Session
 
 router = APIRouter()
@@ -79,45 +81,62 @@ async def disease_dirtribution(db: Session = Depends(get_db)) -> dict:
 @router.post('/diseaseDates/getDiseaseDate')
 async def disease_date(request: DiseaseDateAge, db: Session = Depends(get_db)) -> dict:
     try:
-        print(request.token)
         result = [[0 for _ in range(9)] for _ in range(7)]
+        # print(result)
 
         outcomes = db.query(Paients.outCome, Paients.age).all()
+        # print(outcomes)
         for outcome in outcomes:
-            if outcome[0]:
-                if outcome[0] >= 10:
-                    if outcome[1] <= request.fifthAge:
+            if outcome[0] and outcome[1]:
+                # print(outcome)
+                if 10 <= outcome[0]:
+                    if outcome[1] <= request.firstAge:
                         result[1][1] += 1
-                    elif outcome[1] > request.fifthAge and outcome[1] <= request.secondAge:
-                        result[1][2] += 1
-                    elif outcome[1] > request.secondAge and outcome[1] <= request.thirdAge:
-                        result[1][3] += 1
-                    elif outcome[1] > request.thirdAge and outcome[1] <= request.forthAge:
-                        result[1][4] += 1
-                    elif outcome[1] > request.forthAge and outcome[1] <= request.fifthAge:
-                        result[1][5] += 1
-                    elif outcome[1] > request.fifthAge:
-                        result[1][6] += 1
+                    elif request.firstAge < outcome[1] <= request.secondAge:
+                        result[2][1] += 1
+                    elif request.secondAge < outcome[1] <= request.thirdAge:
+                        result[3][1] += 1
+                    elif request.thirdAge < outcome[1] <= request.forthAge:
+                        result[4][1] += 1
+                    elif request.forthAge < outcome[1] <= request.fifthAge:
+                        result[5][1] += 1
+                    else:
+                        result[6][1] += 1
                 else:
-                    if outcome[1] <= request.fifthAge:
-                        result[outcome[outcome[0]]][1] += 1
-                    elif outcome[1] > request.fifthAge and outcome[1] <= request.secondAge:
-                        result[outcome[outcome[0]]][2] += 1
-                    elif outcome[1] > request.secondAge and outcome[1] <= request.thirdAge:
-                        result[outcome[outcome[0]]][3] += 1
-                    elif outcome[1] > request.thirdAge and outcome[1] <= request.forthAge:
-                        result[outcome[outcome[0]]][4] += 1
-                    elif outcome[1] > request.forthAge and outcome[1] <= request.fifthAge:
-                        result[outcome[outcome[0]]][5] += 1
-                    elif outcome[1] > request.fifthAge:
-                        result[outcome[outcome[0]]][6] += 1
+                    if outcome[1] <= request.firstAge:
+                        result[1][outcome[0]] += 1
+                    elif request.firstAge < outcome[1] <= request.secondAge:
+                        result[2][outcome[0]] += 1
+                    elif request.secondAge < outcome[1] <= request.thirdAge:
+                        result[3][outcome[0]] += 1
+                    elif request.thirdAge < outcome[1] <= request.forthAge:
+                        result[4][outcome[0]] += 1
+                    elif request.forthAge < outcome[1] <= request.fifthAge:
+                        result[5][outcome[0]] += 1
+                    else:
+                        result[6][outcome[0]] += 1
+            else:
+                continue
 
-
-
+        # logging.info(result)
+        keys = ["diabetes", "glaucoma", "cataract", "AMD", "hypertension", "myopia", "others"]
+        data = []
+        for i in range(1, 7):  # 行索引 1~7
+            row = result[i]
+            entry = {
+                keys[0]: row[1],
+                keys[1]: row[2],
+                keys[2]: row[3],
+                keys[3]: row[4],
+                keys[4]: row[5],
+                keys[5]: row[6],
+            }
+            data.append(entry)
+        print(data)
         response = {
             "code": 1,
             "message": "成功获取数据",
-            "data": ""
+            "data": data
         }
         logging.info(response)
     except Exception as e:
@@ -130,30 +149,28 @@ async def disease_date(request: DiseaseDateAge, db: Session = Depends(get_db)) -
     return response
 
 
-@router.get('/diseaseDates/gettest')
-async def disease_date(db: Session = Depends(get_db)):
-    print("test")
-    # 增加
-    test_db = Test(name="test", age=18)
-    db.add(test_db)
-    db.commit()
-    db.refresh(test_db)
+@router.post('/diseaseDates/loginByAccount')
+async def get_token(request: LoginRequest, db: Session = Depends(get_db)) -> dict:
+    # 这里可以根据账号密码进行登录验证，并返回token
+    # 这里暂时返回一个测试token
+    # 实际项目中，token应该由服务端生成，并返回给客户端，客户端需要将token存储在本地，并在每次请求时附带上
+    name = request.name
+    password = request.password
+    Name,Password = db.query(User.name, User.password).filter(User.name == name).first()
+    if Password == password:
+        response ={
+            "code": 1,
+            "message": "登录成功",
+            "data": {
+                "token": settings.JWT_SECRET_KEY
+            }
+        }
+    else:
+        response = {
+            "code": 0,
+            "message": "用户名或密码错误",
+            "data": {}
+        }
+    return response
 
-    # 查询
-    out1 = db.query(Test).filter(Test.name == "LH").first()
-    print(out1.name, out1.age)
 
-    # 更新
-    out2 = db.query(Test).filter(Test.name == "牢大").first()
-    out2.age = 99
-    db.commit()
-    db.refresh(out2)
-    print(out2.name, out2.age)
-
-    # 删除
-    out3 = db.query(Test).filter(Test.name == "何向阳").first()
-    db.delete(out3)
-    db.commit()
-    print("delete success")
-
-    return {"message": "success"}

@@ -5,6 +5,11 @@ class TokenRequest(BaseModel):
     token: str
 
 
+class LoginRequest(BaseModel):
+    name: str
+    password: str
+
+
 class DiseaseDateAge(BaseModel):
     token: str
     firstAge: int

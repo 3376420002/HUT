@@ -24,7 +24,7 @@ class Settings(BaseSettings):
     AI_MODEL_URL: str = "192.168.1.202:5000"
 
     # jwt config
-    JWT_SECRET_KEY: str = "secret_key"
+    JWT_SECRET_KEY: str = "sdhuahikabfkdslfhsadfjkhsajkfhkjsdahfjksdhakfjhsakhfkdhsakfhoiwehfdsafdbwkjebkfbasbfksadfba"
     JWT_ALGORITHM: str = "HS256"
     JWT_ACCESS_TOKEN_EXPIRE_MINUTES: int = 60
     JWT_REFRESH_TOKEN_EXPIRE_MINUTES: int = 7
