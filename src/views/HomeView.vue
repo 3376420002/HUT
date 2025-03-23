@@ -58,18 +58,15 @@ export default {
   justify-content: space-between;
   align-items: center;
   padding: 15px 20px;
-  background-color: #1A1F28;
-  color: #BAE67E;
+  background-color: #7ee6c2;
+  color: #f9f9f9;
   border-top-left-radius: 10px;
   border-top-right-radius: 10px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  /* 添加阴影，增加立体感 */
 }
 
 .logo-text {
   font-size: 18px;
   font-weight: bold;
-  /* 加粗logo文字 */
   margin-right: 10px;
 }
 
@@ -83,12 +80,11 @@ export default {
 }
 
 .toolbar {
-  height: 40px;
-  background-color: #212733;
-  padding: 0 20px;
+  height: 35px;
+  background-color: #4c6f68;
   display: flex;
-  align-items: center;
-  border-bottom: 1px solid #67606F;
+  padding: 4px 20px 0 20px;
+  /* position: relative; */
 }
 
 .toolbar ul {
@@ -96,53 +92,75 @@ export default {
   padding: 0;
   margin: 0;
   display: flex;
-  flex-wrap: wrap;
-  /* 允许列表项换行 */
 }
 
 .toolbar li {
-  margin: 0 10px;
+  /* margin: 0 5px; */
+  height: 100%;
+  display: flex;
+  position: relative;
+  background-color: transparent;
+  transition: all 0.2s ease;
 }
 
 .toolbar li a {
   text-decoration: none;
-  padding: 5px;
-  border-radius:5px;
   color: #CCCCCC;
   font-size: 14px;
   font-weight: 500;
-  /* 适当加粗文字 */
-  transition: color 0.2s ease, background-color 0.2s ease;
-  /* 添加过渡效果 */
+  transition: color 0.001s ease, background-color 0.001s ease;
+  padding: 8px 20px;
+  border-radius: 8px 8px 0 0;
+  position: relative;
+  z-index: 1;
 }
 
-.toolbar li a:hover {
-  color: #BAE67E;
-  /* 鼠标悬浮时文字变色 */
-  background-color: #212733;
-  /* 鼠标悬浮时背景色变化 */
-}
-
-/* 为选中状态的li设置文字加粗样式 */
 .toolbar li.active a {
-  color: #BAE67E;
+  color: #4c6f68;
   font-weight: bold;
+  background-color: #fff;
+  border: 1px solid #4c6f68;
+  border-bottom: none;
+  z-index: 3;
+}
+
+.toolbar li.active a::before,
+.toolbar li.active a::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  width: 20px;
+  height: 8px;
+  background-color: #4c6f68;
+  z-index: 3;
+}
+
+.toolbar li.active a::before {
+  left: -20px;
+  border-bottom-right-radius: 10px;
+  box-shadow: 5px 0 0 0 #fff;
+}
+
+.toolbar li.active a::after {
+  right: -20px;
+  border-bottom-left-radius: 10px;
+  box-shadow: -5px 0 0 0 #fff;
 }
 
 .main {
   flex: 1;
   overflow: auto;
-  /* 允许内容滚动 */
+  background-color: #fff;
   height: calc(100vh - 80px);
   width: 100%;
   border-bottom-left-radius: 10px;
   border-bottom-right-radius: 10px;
   box-shadow: 0 -2px 4px rgba(0, 0, 0, 0.1);
-  /* 添加底部阴影，增加立体感 */
+  position: relative;
+  z-index: 2;
 }
 
 .el-form-item :deep(.el-form-item__label) {
   color: #d4c7e3 !important;
-  /* 原错误位置注释已移除 */
 }
 </style>

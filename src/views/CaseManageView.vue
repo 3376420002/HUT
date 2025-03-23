@@ -8,81 +8,75 @@
       </div>
       <div class="case-content" :class="{ 'shrink': isOpen }">
         <div class="page-content">
-          <!-- 页面其他内容
-          <h1>页面主要内容</h1>
-          <p>这是页面的主要内容。</p> -->
           <el-form :model="form" ref="formRef">
             <el-row>
               <!-- 左半部分表单 -->
-              <el-col :span="14">
-                <h2 style="color: #d4c7e3;">病历信息</h2>
+              <el-col :span="14" class="left-col">
+                <h2 style="color: #696969;">病历信息</h2>
                 <div class="personal-info-container">
-                  <el-form-item label="姓名" prop="name" class="name-item">
+                  <el-form-item label="姓名" prop="name">
                     <el-input v-model="form.name" />
                   </el-form-item>
-                  <el-form-item label="年龄" prop="age" class="age-item">
+                  <el-form-item label="年龄" prop="age">
                     <el-input v-model="form.age" @input="handleAgeInput" />
                   </el-form-item>
-                  <el-form-item label="性别" prop="gender" class="gender-item">
+                  <el-form-item label="性别" prop="gender">
                     <el-input v-model="form.gender" />
                   </el-form-item>
-                  <el-form-item label="病历号" prop="caseID" class="caseID-item">
+                  <el-form-item label="病历号" prop="caseID">
                     <el-input v-model="form.caseID" />
                   </el-form-item>
                 </div>
 
                 <div class="eye-data-container">
-                  <el-form-item label="左眼视力" prop="leftEyeVision" class="LeftEyeVision-item">
+                  <el-form-item label="左眼视力" prop="leftEyeVision">
                     <el-input v-model="form.leftEyeVision" />
                   </el-form-item>
-                  <el-form-item label="右眼视力" prop="rightEyeVision" class="REyeVision-item">
+                  <el-form-item label="右眼视力" prop="rightEyeVision">
                     <el-input v-model="form.rightEyeVision" />
                   </el-form-item>
-                  <el-form-item label="左眼眼压" prop="leftEyePressure" class="LEyePressure-item">
+                  <el-form-item label="左眼眼压" prop="leftEyePressure">
                     <el-input v-model="form.leftEyePressure" />
                   </el-form-item>
-                  <el-form-item label="右眼眼压" prop="rightEyePressure" class="REyePressure-item">
+                  <el-form-item label="右眼眼压" prop="rightEyePressure">
                     <el-input v-model="form.rightEyePressure" />
                   </el-form-item>
                 </div>
 
                 <div class="eye-status-container1">
-                  <el-form-item label="眼轴长度" prop="eyeAxisLength" class="EyeAxisLength-item">
+                  <el-form-item label="眼轴长度" prop="eyeAxisLength">
                     <el-input v-model="form.eyeAxisLength" />
                   </el-form-item>
-                  <el-form-item label="角膜曲率" prop="cornealCurvature" class="CornealCurvature-item">
+                  <el-form-item label="角膜曲率" prop="cornealCurvature">
                     <el-input v-model="form.cornealCurvature" />
                   </el-form-item>
-                  <el-form-item label="晶状体混浊程度" prop="lensClouding" class="LensClouding-item">
+                  <el-form-item label="晶状体混浊程度" prop="lensClouding">
                     <el-input v-model="form.lensClouding" />
                   </el-form-item>
-                  <el-form-item label="视网膜血管情况" prop="retinalVasculature" class="RetinalVasculature-item">
+                  <el-form-item label="视网膜血管情况" prop="retinalVasculature">
                     <el-input v-model="form.retinalVasculature" />
                   </el-form-item>
                 </div>
 
                 <div class="eye-status-container2">
-                  <el-form-item label="黄斑状况" prop="macularCondition" class="MacularCondition-item">
+                  <el-form-item label="黄斑状况" prop="macularCondition">
                     <el-input v-model="form.macularCondition" />
                   </el-form-item>
-                  <el-form-item label="高血压病史" prop="historyOfHypertension" class="HistoryOfHypertension-item">
+                  <el-form-item label="高血压病史" prop="historyOfHypertension">
                     <el-input v-model="form.historyOfHypertension" />
                   </el-form-item>
-                  <el-form-item label="糖尿病病史" prop="historyOfDiabetes" class="HistoryOfDiabetes-item">
+                  <el-form-item label="糖尿病病史" prop="historyOfDiabetes">
                     <el-input v-model="form.historyOfDiabetes" />
+                  </el-form-item>
+                  <el-form-item label="眼底病史" prop="historyOfEyeDisease">
+                    <el-input v-model="form.historyOfEyeDisease" />
                   </el-form-item>
                 </div>
 
                 <div class="eye-status-container3">
-                  <el-form-item label="眼底病史" prop="historyOfEyeDisease" class="HistoryOfEyeDisease-item">
-                    <el-input v-model="form.historyOfEyeDisease" />
-                  </el-form-item>
-                  <el-form-item label="家族病史" prop="familyMedicalHistory" class="FamilyMedicalHistory-item">
+                  <el-form-item label="家族病史" prop="familyMedicalHistory">
                     <el-input v-model="form.familyMedicalHistory" />
                   </el-form-item>
-                </div>
-
-                <div class="clinicalDiagnosis-container">
                   <el-form-item label="临床诊断" prop="clinicalDiagnosis">
                     <el-input v-model="form.clinicalDiagnosis" />
                   </el-form-item>
@@ -90,24 +84,24 @@
 
               </el-col>
               <!-- 右半部分图片和导出 -->
-              <el-col :span="10">
+              <el-col :span="10" class="right-col">
                 <div class="image-container">
                   <el-form-item label="左眼图片" class="eyeImageLabel">
                     <image-uploader :isUpload="true" :imageFile="this.form.leftEyeImageBase64"
-                      @file-uploaded="LHandleUpload" />
+                      @file-uploaded="LHandleUpload" class="image" />
                   </el-form-item>
                   <el-form-item label="右眼图片" class="eyeImageLabel">
                     <image-uploader :isUpload="true" :imageFile="this.form.rightEyeImageBase64"
-                      @file-uploaded="RHandleUpload" />
+                      @file-uploaded="RHandleUpload" class="image" />
                   </el-form-item>
                 </div>
                 <el-form-item label="医生建议">
                   <el-input v-model="form.advice" type="textarea" maxlength="300" resize="none"
-                    :autosize="{ minRows: 4, maxRows: 8 }" />
+                    :autosize="{ minRows: 6, maxRows: 6 }" />
                 </el-form-item>
-                <!-- 提交pdf按钮 -->
+
                 <el-form-item>
-                  <PdfExportButton :form-data="form" />
+                  <PdfExportButton @click.native="exportPdf" :form-data="form" />
                 </el-form-item>
               </el-col>
             </el-row>
@@ -165,7 +159,7 @@ export default {
       }
     }
   },
-  activated(){
+  activated() {
     this.InitCase();
     this.InitAdvice();
   },
@@ -177,6 +171,13 @@ export default {
 
   },
   methods: {
+    exportPdf() {
+      const now = new Date();
+      this.form.diagnoseDate = `${now.getFullYear()}.${(now.getMonth() + 1).toString()}.${now.getDate().toString()}`;
+      console.log(this.form.diagnoseDate)
+
+      //医生名字导入PDF
+    },
     InitCase() {
       if (this.$route.query && this.$route.query.imageChoice) {
         const choice = this.$route.query.imageChoice;
@@ -266,24 +267,6 @@ export default {
         this.$message.error('文件格式不正确，请上传图片文件');
       }
     },
-    // base64ToFile(base64, filename) {
-    //   // 提取 MIME 类型
-    //   const mimeType = base64.match(/^data:([^;]+);base64,/)[1];
-    //   const sliceSize = 512;
-    //   const byteCharacters = atob(base64.split(',')[1]);
-    //   const byteArrays = [];
-    //   for (let offset = 0; offset < byteCharacters.length; offset += sliceSize) {
-    //     const slice = byteCharacters.slice(offset, offset + sliceSize);
-    //     const byteNumbers = new Array(slice.length);
-    //     for (let i = 0; i < slice.length; i++) {
-    //       byteNumbers[i] = slice.charCodeAt(i);
-    //     }
-    //     const byteArray = new Uint8Array(byteNumbers);
-    //     byteArrays.push(byteArray);
-    //   }
-    //   const blob = new Blob(byteArrays, { type: mimeType });
-    //   return new File([blob], filename, { type: mimeType });
-    // },
     handleAgeInput(value) {//浏览器所有输入的返回都是字符串
       if (!/^(1[0-1][0-9]|120|[1-9][0-9]?)$/.test(value)) {
         this.form.age = value.replace(/[^\d]/g, '')
@@ -306,20 +289,14 @@ export default {
 #case-manage {
   width: 100%;
   height: 100%;
-  /* 确保容器有足够的高度 */
 }
 
 .body {
-  background-color: #1A1F28;
+  background-color: #ffffff;
   display: flex;
   height: 100%;
   width: 100%;
   position: relative;
-  /* 为父容器添加相对定位 */
-}
-
-.page-content {
-  padding: 0 20px 0 20px;
 }
 
 .dialog-container {
@@ -327,15 +304,19 @@ export default {
   position: relative;
 }
 
+.page-content {
+  height: 100%;
+  width: auto;
+  padding: 0 10px 0 10px;
+}
+
 .case-content {
   position: absolute;
-  /* 使用绝对定位 */
   top: 0;
   right: 0;
   left: 0;
   width: 100%;
   transition: width 0.3s ease, left 0.3s ease;
-  /* 添加 left 属性的过渡效果 */
 }
 
 .case-content.shrink {
@@ -343,103 +324,26 @@ export default {
   width: calc(100% - 400px);
 }
 
-/* 每个信息容器独占一行 */
+.left-col {
+  margin: 3rem 0 0 0;
+  height: 100%;
+  border: 1px solid #65676c;
+  border-radius: 10px;
+  padding: 1rem;
+}
+
 .personal-info-container {
   display: flex;
   width: 100%;
   gap: 20px;
   padding: 0;
   clear: both;
-}
-
-.personal-info-container .age-item {
-  width: 60px;
-}
-
-.personal-info-container .gender-item {
-  width: 75px;
+  border-bottom: 1px solid #65676c;
+  padding-bottom: 1rem;
 }
 
 .eye-data-container {
-  display: flex;
-  width: 100%;
-  gap: 60px;
-  padding: 0;
-  clear: both;
-}
-
-.eye-data-container [class$="-item"] {
-  width: 80px;
-  margin: 0 8px 0 0;
-}
-
-.eye-status-container1 {
-  display: flex;
-  width: 100%;
-  gap: 60px;
-  padding: 0;
-  clear: both;
-}
-
-.eye-status-container1 .EyeAxisLength-item {
-  width: 70px;
-}
-
-.eye-status-container1 .CornealCurvature-item {
-  width: 70px;
-}
-
-.eye-status-container1 .LensClouding-item {
-  width: 150px;
-}
-
-.eye-status-container1 .RetinalVasculature-item {
-  width: 150px;
-}
-
-
-.eye-status-container2 {
-  display: flex;
-  width: 100%;
-  gap: 60px;
-  padding: 0;
-  clear: both;
-}
-
-.eye-status-container2 .MacularCondition-item {
-  width: 160px;
-}
-
-.eye-status-container2 .HistoryOfHypertension-item {
-  width: 160px;
-}
-
-.eye-status-container2 .HistoryOfDiabetes-item {
-  width: 160px;
-}
-
-.eye-status-container3 {
-  display: flex;
-  width: 100%;
-  gap: 100px;
-  padding: 0;
-}
-
-.eye-status-container3 .HistoryOfEyeDisease-item {
-  width: 200px;
-}
-
-.eye-status-container3 .FamilyMedicalHistory-item {
-  width: 200px;
-}
-
-.clinicalDiagnosis-container {
-  display: flex;
-  padding: 0;
-  width: 100%;
-}
-
-.image-container {
+  margin: 1rem 0 0 0;
   display: flex;
   width: 100%;
   gap: 20px;
@@ -447,28 +351,65 @@ export default {
   clear: both;
 }
 
+.eye-status-container1,
+.eye-status-container2,
+.eye-status-container3 {
+  display: flex;
+  width: 100%;
+  gap: 20px;
+  padding: 0;
+  clear: both;
+}
+
+.right-col {
+  margin: 3rem 0 0 0;
+  height: 100%;
+  border: 1px solid #65676c;
+  border-radius: 10px;
+  padding: 1rem;
+}
+
+.image-container {
+  padding: 5px 0 0 0;
+  display: flex;
+  gap: 20px;
+  clear: both;
+  height: 350px;
+}
+
+.eyeImageLabel {
+  display: flex;
+  flex-grow: 1;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+}
+
+.image {
+  flex: 1;
+  display: flex;
+  width: 100%;
+  height: 100%;
+  aspect-ratio: 1/1;
+}
+
 .el-form-item:deep(.el-textarea__inner),
 .el-form-item:deep(.el-input__inner) {
-  background-color: #1A1F28;
-  color: #d4c7e3;
+  width: calc(100% - 20px);
+  background-color: transparent;
+  color: #696969;
+  border-color: #696969;
 }
 
 .el-row {
   display: flex;
   gap: 20px;
 }
-
-.eyeImageLabel {
-  display: flex;
-  flex-direction: column;
-  width: 100%;
-}
-
 /* 全局表单标签左对齐 */
 :deep(.el-form-item__label) {
   text-align: left;
   width: 100%;
   padding-left: 0;
-  color: #d4c7e3;
+  color: #696969;
 }
 </style>

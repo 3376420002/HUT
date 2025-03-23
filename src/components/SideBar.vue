@@ -1,7 +1,7 @@
 <template>
   <div id="sideBar">
     <div class="basic-information-container">
-      <div class="patient-information">
+      <div v-if="!isBulkUpload" class="patient-information">
         <div>
           <span class="inform-unit">
             <img src="@/assets/generalIcons/visitor.png" width="30">
@@ -14,8 +14,8 @@
           检查单号：{{ trackingNumber }}
         </div>
       </div>
-      <div class="import-status">
-        <!-- 这里预留是否需要导出 -->
+      <div v-else class="title">
+        批量上传图像
       </div>
     </div>
     <hr>
@@ -37,22 +37,17 @@
           @click="handleThumbnailClick(index)">
       </template>
     </div>
-    <!-- <hr> -->
-    <!-- <div class="tab-container">
-      <div v-for="(labelName, index) in tabs" :key="index" class="tab"
-        :class="{ 'active-tab': currentImageIndex === index }" @click="handleTabClick(index)">
-        {{ labelName }}
-      </div>
-    </div> -->
     <div class="exchange-tools">
       <button class="tool-button" :class="{ 'button-active': toolChoose === 1 }" @click="handleExchangeTool(1)">
+        <i class="el-icon-edit big-icon"></i>
         诊断建议
       </button>
       <button class="tool-button" :class="{ 'button-active': toolChoose === 2 }" @click="handleExchangeTool(2)">
+        <i class="el-icon-s-data big-icon"></i>
         AI检测结果
       </button>
     </div>
-    <div v-if="toolChoose === 1" class="input-container">
+    <div v-if="toolChoose === 1" class="input-container" :class="{ 'exInput': isBulkUpload }">
       <!-- 根据当前显示图片的索引显示对应的输入框 -->
       <div v-for="(inputWrapper, inputIndex) in inputElements[currentImageIndex].inputs" :key="inputIndex"
         class="input-wrapper">
@@ -62,13 +57,15 @@
         <span class="delete-btn" @click="handleDelete(currentImageIndex, inputIndex)">×</span>
       </div>
     </div>
-    <div v-if="toolChoose === 2" class="ai-suggest">
+    <div v-if="toolChoose === 2" class="ai-suggest" :class="{ 'exAI-suggest': isBulkUpload }">
       <StatusBar :progresses="images[currentImageIndex].probabilities"></StatusBar>
     </div>
-    <div class="report-container">
+    <div v-if="!isBulkUpload" class="report-container">
       <hr>
       <div class="generate-report">
-        <button class="report-button" @click="generateReport">{{ buttonName }}
+        <button class="report-button" @click="generateReport">
+          <i v-if="!isLoading" class="el-icon-document big-icon"></i>
+          {{ buttonName }}
           <span v-if="isLoading" class="loading-spinner"></span>
         </button>
       </div>
@@ -126,6 +123,10 @@ export default {
       type: Number,
       default: 0
     },
+    isBulkUpload: {
+      type: Boolean,
+      default: false
+    }
     // probabilities: {
     //   type: Array,
     //   default: () => []
@@ -245,21 +246,62 @@ export default {
 
 <style scoped>
 #sideBar {
-  width: 100%;
+  width: calc(100% - 1px);
   height: 100%;
   position: relative;
-  /* margin-left: 10px; */
-  background-color: rgb(25, 55, 95)
+  background: linear-gradient(135deg, #1a3b5c 0%, #2c5e80 100%);
+  border-right: 1px solid rgba(255, 255, 255, 0.03);
+  backdrop-filter: blur(15px);
+  box-shadow: 0 0 40px rgba(0, 0, 0, 0.3),
+    inset 0 0 20px rgba(0, 0, 0, 0.5);
+}
+
+#sideBar::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg,
+      transparent 50%,
+      rgba(255, 255, 255, 0.02) 50%);
+  pointer-events: none;
 }
 
 .basic-information-container {
-  height: 35px;
+  height: 45px;
   display: flex;
-  padding: 20px;
+  /* padding: 20px; */
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  position: relative;
+  padding: 15px 25px;
+  border-radius: 15px;
+  margin: 0 10px;
+  background: linear-gradient(135deg, #16304c 0%, #244e6c 100%);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05);
+}
+
+.basic-information-container::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, transparent 45%, rgba(255, 255, 255, 0.03) 55%);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.basic-information-container:hover::before {
+  opacity: 1;
 }
 
 .patient-information {
   color: rgb(255, 255, 255, 0.8);
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
 }
 
 .inform-unit {
@@ -267,105 +309,133 @@ export default {
   vertical-align: middle;
 }
 
-.thumbnail {
+.title {
   width: 100%;
-  height: 30%;
+  margin-top: 10px;
+  text-align: center;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  font-size: 20px;
+  font-weight: 600;
+  color: #00b8d4;
+  background-clip: text;
+  letter-spacing: 2px;
+  text-shadow: 2px 2px 8px rgba(0, 200, 220, 0.2),
+    0 0 15px rgba(0, 200, 220, 0.1);
+  margin-bottom: 10px;
+}
+
+.thumbnail {
+  width: calc(100% - 40px);
+  height: calc(30% - 20px);
   display: flex;
   flex-wrap: wrap;
+  padding: 10px;
+  background: rgba(255, 255, 255, 0.02);
+  border-radius: 15px;
+  margin: 0 10px;
 }
 
 .thumbnail-image {
-  width: 30%;
-  height: 40%;
-  margin: 15px;
+  width: 27%;
+  height: 38%;
+  margin: 8px;
   cursor: pointer;
-  border: 2px solid rgb(38, 173, 187);
+  /* border: 2px solid rgb(38, 173, 187); */
+  border-radius: 10px;
+  border: none;
   object-fit: contain;
-  background-color: black;
+  /* border-color: rgba(255,255,255,0.1); */
+  /* background-color: black;*/
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  background: black;
   /* 设置鼠标指针为手指形状 */
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
 }
 
 .thumbnail-image:hover {
   transform: scale(1.1);
-  box-shadow: 0 0 20px rgb(38, 173, 187);
+  box-shadow: 0 0 30px rgba(0, 184, 212, 0.2);
+  border-color: #00b8d4;
 }
 
 .selected-thumbnail {
-  transform: scale(1.1);
-  box-shadow: 0 0 20px rgb(38, 173, 187);
+  /* transform: scale(1.1);
+  box-shadow: 0 0 20px rgb(38, 173, 187); */
+  border: 1.5px solid rgb(38, 173, 187);
+  transform: scale(1.05);
+  box-shadow: 0 5px 15px rgba(0, 184, 212, 0.4),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
 }
 
 .exchange-tools {
-  width: 100%;
-  height: 8vh;
+  width: calc(100% - 20px);
+  height: calc(8vh - 10px);
   border-top: 1px solid rgb(238, 238, 238);
-  background-color: rgb(15, 26, 72, 0.6);
+  /* background-color: rgb(15, 26, 72, 0.6); */
   display: flex;
   justify-content: center;
   align-items: center;
+  /* border-radius: 20px; */
+  margin: 15px 10px;
+  border-radius: 25px;
+  background: linear-gradient(135deg, #16304c 0%, #244e6c 100%);
+  /* margin: 0 20px; */
 }
 
 .tool-button {
-  width: 30%;
-  height: 50%;
-  background-color: transparent;
+  width: 40%;
+  height: 60%;
+  /* background-color: transparent; */
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05);
   border: 1px solid rgb(38, 173, 187);
   font-size: 15px;
   font-weight: bold;
   color: rgb(38, 173, 187);
   cursor: pointer;
-  transition: background-color 0.3s ease
+  transition: background-color 0.3s ease;
+  margin: 0 15px;
+  border-radius: 20px;
 }
 
 .tool-button:hover {
   background-color: rgb(38, 173, 187, 0.5)
 }
 
+.big-icon {
+  font-size: 18px;
+  margin-right: 8px;
+}
+
 .button-active {
-  background-color: rgb(38, 173, 187);
+  /* background-color: rgb(38, 173, 187);*/
   color: white;
+  background: linear-gradient(135deg, #00b8d4 0%, #0096a8 100%);
+  box-shadow: 0 3px 10px rgba(0, 200, 220, 0.3),
+    inset 0 2px 0 rgba(255, 255, 255, 0.1);
 }
-
-/* .tab-container {
-  display: flex;
-  margin-bottom: 10px;
-}
-
-.tab {
-  padding: 10px 20px;
-  background-color: rgb(23, 46, 76);
-  border-top-left-radius: 10px;
-  border-top-right-radius: 10px;
-  color: white;
-  cursor: pointer;
-  transition: background-color 0.3s ease;
-}
-
-.tab:hover {
-  border-top: 1px solid rgb(204, 204, 204);
-  border-right: 1px solid rgb(204, 204, 204);
-  background-color: rgb(224, 224, 224, 0.5);
-}
-
-.active-tab {
-  border-top: 1px solid rgb(204, 204, 204);
-  border-right: 1px solid rgb(204, 204, 204);
-  background-color: rgb(204, 204, 204, 0.5);
-} */
-
 
 .input-container {
-  width: 100%;
-  height: 40%;
+  width: calc(100% - 40px);
+  height: calc(35% - 10px);
   display: inline-block;
   vertical-align: top;
   overflow: scroll;
+  scrollbar-width: none;
+  background: rgba(255, 255, 255, 0.02);
+  border-radius: 15px;
+  margin: 0 10px;
+  padding: 10px;
+}
+
+.exInput {
+  height: calc(40% + 10px);
 }
 
 .input-wrapper {
   position: relative;
-  margin-bottom: 5px;
+  /* margin-bottom: 5px; */
   display: flex;
   align-items: center;
   justify-content: center;
@@ -389,27 +459,33 @@ export default {
   text-align: center;
   line-height: 22px;
   cursor: pointer;
-  transition: background-color 0.3s ease;
+  transition: background-color 0.3s ease, transform 0.3s ease;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2), 
+              inset 0 1px 0 rgba(255, 255, 255, 0.05);
 }
 
 .delete-btn:hover {
-  background-color: #e53935;
+  background-color: #c62828;
+  transform: scale(1.1);
 }
 
 .input-index {
   min-width: 20px;
   text-align: center;
   font-size: 18px;
-  color: white
+  color: white;
+  text-shadow: 2px 2px 8px rgba(0, 200, 220, 0.2);
 }
 
 .tech-input {
   position: relative;
-  width: 350px;
+  width: 100%;
   padding: 5px 0px 5px 5px;
   border: none;
   border-radius: 8px;
-  background: linear-gradient(to bottom, #2c3e50, #34495e);
+  background: linear-gradient(135deg, #1e3858 0%, #2a5072 100%);
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2), 
+              inset 0 1px 0 rgba(255, 255, 255, 0.05);
   /* box-shadow: 0 0 15px rgba(0, 255, 255, 0.3), inset 0 0 10px rgba(0, 255, 255, 0.1); */
   font-size: 16px;
   color: #ecf0f1;
@@ -438,11 +514,20 @@ export default {
 }
 
 .ai-suggest {
-  width: calc(100% - 40px);
-  height: 35%;
-  padding: 20px 20px 0 20px;
+  width: calc(100% - 50px);
+  height: calc(35% - 20px);
+  /* padding: 20px 20px 0 20px; */
+  background: rgba(255, 255, 255, 0.02);
+  border-radius: 15px;
+  margin: 15px 10px;
+  padding: 15px;
   color: #e0ecff;
   overflow: scroll;
+  scrollbar-width: none;
+}
+
+.exAI-suggest {
+  height: 40%;
 }
 
 .report-container {
@@ -458,15 +543,24 @@ export default {
 }
 
 .report-button {
-  width: 90%;
+  width: 80%;
   height: 40px;
+  border-radius: 25px;
   color: white;
   font-size: 18px;
-  background-color: rgba(38, 173, 187);
+  font-weight: 600;
+  /* background-color: rgba(38, 173, 187); */
+  background: linear-gradient(135deg, #00b8d4 0%, #0096a8 100%);
+  box-shadow: 0 3px 10px rgba(0, 200, 220, 0.3),
+    inset 0 2px 0 rgba(255, 255, 255, 0.1);
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
+}
+
+.report-button:hover {
+  background: linear-gradient(135deg, #00a8c2 0%, #008599 100%);
 }
 
 /* .report-button:hover {

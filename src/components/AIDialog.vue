@@ -214,22 +214,15 @@ export default {
 </script>
 
 <style scoped>
-/* 全局样式 */
-/* body {
-  font-family: Arial, sans-serif;
-  margin: 0;
-  padding: 0;
-} */
-
 /* 悬浮按钮样式 */
 .toggle-button {
   position: fixed;
-  top: 50%;
+  top: 55%;
   transform: translateY(-50%);
   z-index: 1001;
   padding: 20px 10px;
-  background-color: #007bff;
-  color: white;
+  background-color: #7ee6c2;
+  color: #111111;
   border: none;
   border-top-right-radius: 50px;
   border-bottom-right-radius: 50px;
@@ -242,7 +235,7 @@ export default {
 }
 
 .toggle-button:hover {
-  background-color: #0056b3;
+  background-color: #74d4b2;
 }
 
 .button-text {

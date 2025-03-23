@@ -25,7 +25,7 @@ export default {
     },
     axisTextColor: {
       type: String,
-      default: "#6E7079",
+      default: "#333333",
     },
     // 控制是否使用颜色渐变
     isGradient: {
@@ -80,8 +80,20 @@ export default {
         yAxis: {
           type: "value",
           axisLabel: {
-            color: this.axisTextColor,
+            color: "#333333",
           },
+          axisLine: {
+            show: true,
+            lineStyle: {
+              color: "#666666"
+            }
+          },
+          splitLine: {
+            show: true,
+            lineStyle: {
+              color:"#aaaaaa"
+            }
+          }
         },
         series: [
           {

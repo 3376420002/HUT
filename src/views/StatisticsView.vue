@@ -2,32 +2,17 @@
   <div id="statistic">
     <div class="top">
       <div class="line">
-        <LineChart
-          :titleText="LineChartTitle"
-          :chartData="LineChartData"
-          :xAxisValues="LineXAxisValues"
-          :isGradient="isGradient"
-          :colors="LineGradientColors"
-          :axisTextColor="axisTextColor"
-        />
+        <LineChart :titleText="LineChartTitle" :chartData="LineChartData" :xAxisValues="LineXAxisValues"
+          :isGradient="isGradient" :colors="LineGradientColors" :axisTextColor="axisTextColor" />
       </div>
       <div class="pie">
-        <PieChart
-          :titleText="PieChartTitle"
-          :chartData="PieChartData"
-          :names="BarSeriesNames"
-          :labelColor="axisTextColor"
-        />
+        <PieChart :titleText="PieChartTitle" :chartData="PieChartData" :names="BarSeriesNames"
+          :labelColor="axisTextColor" />
       </div>
     </div>
     <div class="bottom">
-      <BarChart
-        :titleText="BarChartTitle"
-        :seriesNames="BarSeriesNames"
-        :seriesData="BarSeriesData"
-        :xAxisValues="BarXAxisValues"
-        :axisTextColor="axisTextColor"
-      ></BarChart>
+      <BarChart :titleText="BarChartTitle" :seriesNames="BarSeriesNames" :seriesData="BarSeriesData"
+        :xAxisValues="BarXAxisValues" :axisTextColor="axisTextColor"></BarChart>
     </div>
   </div>
 </template>
@@ -49,10 +34,10 @@ export default {
         450, 250, 155, 348, 192, 687, 485, 665, 985, 475, 342, 258,
       ],
       isGradient: true,
-      LineGradientColors: ["rgb(30, 114, 119)", "rgba(0, 123, 255,0.1)"],
+      LineGradientColors: ["rgba(132,250,176,0.1)", "rgba(143,211,244,0.3)"],
       LineXAxisValues: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
-      PieChartTitle:"不同疾病占比情况",
-      PieChartData:[485,159,644,542,387,194,674],
+      PieChartTitle: "不同疾病占比情况",
+      PieChartData: [518, 579, 621, 542, 587, 499, 654],
       BarChartTitle: "不同年龄段的患病情况",
       BarSeriesNames: [
         "糖尿病",
@@ -80,10 +65,10 @@ export default {
         "50~64岁",
         "65岁及以上",
       ],
-      axisTextColor: "rgb(38, 173, 187)",
+      axisTextColor: "#333333",
     };
   },
-  mounted() {},
+  mounted() { },
   methods: {},
 };
 </script>
@@ -91,35 +76,38 @@ export default {
 <style scoped>
 #statistic {
   height: 100%;
-  background-color: rgb(26, 43, 90);
+  background-color: rgb(250, 250, 250);
 }
 
 .top {
-  height: 50%;
+  height: calc(50% - 40px);
   display: flex;
 }
 
 .line {
   width: 55%;
-  margin: 15px 15px 0px 15px;
-  border: 2px solid rgb(25, 55, 95);
-  background-color: rgb(1, 20, 97);
+  margin: 30px 30px 0px 30px;
+  background-color: rgb(250, 250, 250);
+  box-shadow: 12px 12px 12px rgba(0, 0, 0, 0.1),
+    -10px -10px 10px white;
+  border-radius: 20px;
 }
 
 .pie {
   width: 45%;
-  margin: 15px 15px 0px 0px;
-  border: 2px solid rgb(25, 55, 95);
-  background-color: rgb(1, 20, 97);
-  display:flex;
-  align-items:center;
-  justify-content: center;
+  margin: 30px 30px 0px 30px;
+  background-color: rgb(250, 250, 250);
+  box-shadow: 12px 12px 12px rgba(0, 0, 0, 0.1),
+  -10px -10px 10px rgb(255, 255, 255);
+  border-radius: 20px;
 }
 
 .bottom {
-  margin: 15px;
-  border: 2px solid rgb(25, 55, 95);
-  height: 45%;
-  background-color: rgb(1, 20, 97);
+  height: calc(50% - 30px);
+  margin: 30px 30px 0px 30px;
+  background-color: rgb(250, 250, 250);
+  box-shadow: 12px 12px 12px rgba(0, 0, 0, 0.1),
+  -10px -10px 10px white;
+  border-radius: 20px;
 }
 </style>

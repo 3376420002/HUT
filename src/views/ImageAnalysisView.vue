@@ -3,79 +3,143 @@
     <div class="submit-and-results">
       <div class="submit">
         <!-- 单张点击上传 -->
-        <div v-if="!isBulkUpload" class="imageSelectorContainer">
-          <div class="imageSelector">
-            <button @click="ImageUploaderButton(1)" :class="{ active: imageKind[1] }">
-              <span>左眼眼底图</span>
-            </button>
-            <button @click="ImageUploaderButton(2)" :class="{ active: imageKind[2] }">
-              <span>右眼眼底图</span>
-            </button>
-            <button @click="ImageUploaderButton(3)" :class="{ active: imageKind[3] }">
-              <span>左眼OCT图像</span>
-            </button>
-            <button @click="ImageUploaderButton(4)" :class="{ active: imageKind[4] }">
-              <span>右眼OCT图像</span>
-            </button>
+        <div v-if="!isBulkUpload" class="single-submit">
+          <div class="eyeGround-group">
+            <div class="title">眼底图像</div>
+            <div class="imageContainer">
+              <div v-for="index in [1, 2]" :key="index" class="images single-image">
+                <div v-if="hasAnalysis && hasSingleUpload[index]" class="imageSelector">
+                  <button @click="ImageUploaderButton(index)" :class="{ active: imageKind[index] }">
+                    <span>{{ imageKind[index] ? "显示原图" : "显示增强" }}</span>
+                  </button>
+                </div>
+                <ImageUploader v-show="!imageKind[index]" :isUpload="true"
+                  @file-uploaded="(payload) => imageUpload(payload, index)" />
+                <ImageUploader v-if="hasAnalysis && imageKind[index]" :imageFile="enforceImageResults[index].path" />
+              </div>
+            </div>
           </div>
-        </div>
-        <!-- 单张上传预览 -->
-        <div v-if="!isBulkUpload" class="imageContainer">
-          <div v-for="index in 4" :key="index">
-            <div v-if="imageKind[index]" class="images">
-              <ImageUploader :isUpload="true" @file-uploaded="(payload) => imageUpload(payload, index)" />
+          <!-- 第二组：后两个下标 -->
+          <div class="oct-group">
+            <div class="title">OCT图像</div>
+            <div class="imageContainer">
+              <div v-for="index in [3, 4]" :key="index" class="images single-image">
+                <div v-if="hasAnalysis && hasSingleUpload[index]" class="imageSelector">
+                  <button @click="ImageUploaderButton(index)" :class="{ active: imageKind[index] }">
+                    <span>{{ imageKind[index] ? "显示原图" : "显示增强" }}</span>
+                  </button>
+                </div>
+                <ImageUploader v-show="!imageKind[index]" :isUpload="true"
+                  @file-uploaded="(payload) => imageUpload(payload, index)" />
+                <ImageUploader v-if="hasAnalysis && imageKind[index]" :imageFile="enforceImageResults[index].path" />
+              </div>
             </div>
           </div>
         </div>
-        <!--批量上传预览-->
-        <div v-if="isBulkUpload" class="bulkImageContainer">
-          <button @click="prevPage" :disabled="currentPage === 0">L</button>
-          <div class="imageContainer">
-            <div v-for="(image, index) of currentCommittedImages" :key="index" class="images">
+        <div v-else class="batch-submit">
+          <!--批量上传预览-->
+          <div class="title">批量上传</div>
+          <div class="bulkImageContainer">
+            <div v-if="!isUploadImg" class="bulk-upload">
+              <input type="file" webkitdirectory directory multiple @change="startBulkUpload" ref="folderInput">
+            </div>
+            <div v-if="isUploadImg" class="bulk-images">
+              <div class="group-number">当前组号: {{ selectedGroup + 1 }}</div>
+              <div class="arrow left-arrow" @click="prevPage" v-if="selectedGroup != 0">&lt;</div>
+              <div class="imageContainer">
+                <div v-for="(image, index) of groupedImages[selectedGroup]" :key="index" class="images group-image">
+                  <div v-if="hasAnalysis" class="imageSelector">
+                    <button @click="ImageUploaderButton(index)"
+                      :class="{ active: groupImageKind[selectedGroup][index] }">
+                      <span>{{ groupImageKind[selectedGroup][index] ? "显示原图" : "显示增强" }}</span>
+                    </button>
+                  </div>
+                  <!-- <ImageUploader :imageFile="groupImageKind[selectedGroup][index]?groupedEnforceImagesResults[selectedGroup][index].path:image.path" /> -->
+                  <ImageUploader :imageFile="image.path" />
+                </div>
+              </div>
+              <div class="arrow right-arrow" @click="nextPage" v-if="selectedGroup != totalGroup - 1">&gt;</div>
+              <div class="reUpload-icon" @click="reBulkUpload" title="重新上传">
+                <i class="el-icon-refresh-right"></i>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="results">
+        <!-- 单张结果图 -->
+        <div v-if="!isBulkUpload" class="single-results">
+          <div class="eyeGround-results">
+            <div class="title">眼底结果图像</div>
+            <div v-if="hasAnalysis" class="imageContainer">
+              <div v-for="(image, index) of filteredEyeGroundImageResult" :key="index" class="images single-result">
+                <ImageUploader :imageFile="image.path" />
+              </div>
+            </div>
+          </div>
+          <div class="oct-results">
+            <div class="title">OCT结果图像</div>
+            <div v-if="hasAnalysis" class="imageContainer">
+              <div v-for="(image, index) of filteredOCTImageResult" :key="index" class="images single-result">
+                <ImageUploader :imageFile="image.path" />
+              </div>
+            </div>
+          </div>
+        </div>
+        <!--批量上传结果图-->
+        <div v-else class="bulk-results">
+          <div class="title">结果图</div>
+          <div v-if="hasAnalysis" class="imageContainer">
+            <div v-for="(image, index) of groupedImagesResult[selectedGroup]" :key="index" class="images group-image">
               <ImageUploader :imageFile="image.path" />
             </div>
-          </div>
-          <button @click="nextPage" :disabled="currentPage === totalPages">R</button>
-        </div>
-      </div>
-      <!-- 单张结果图 -->
-      <div v-if="!isBulkUpload" class="results">
-        <div v-if="hasCommitted" class="imageContainer">
-          <div v-for="(image, index) of imageResult" :key="index" class="images">
-            <ImageUploader :imageFile="image.path" />
-          </div>
-        </div>
-      </div>
-      <!--批量上传结果图-->
-      <div v-if="isBulkUpload" class="results">
-        <div v-if="hasCommitted" class="imageContainer">
-          <div v-for="(image, index) of currentResultImages" :key="index" class="images">
-            <ImageUploader :imageFile="image.path" />
           </div>
         </div>
       </div>
     </div>
     <div class="states">
       <div class="setUp">
-        <button @click="observationMode">观察模式</button>
+        <div class="mode">
+          <!-- <button @click="$refs.folderInput.click(), setBulkStatus()"> 批量上传 </button> -->
+          <button @click="setBulkStatus()" :class="{ active: !isBulkUpload }" :disabled="!isBulkUpload">
+            <i class="el-icon-tickets big-icon"></i>
+            单例上传
+          </button>
+          <button @click="setBulkStatus()" :class="{ active: isBulkUpload }" :disabled="isBulkUpload">
+            <i class="el-icon-folder-opened big-icon"></i>
+            批量上传
+          </button>
+        </div>
+        <div class="tools">
+          <button @click="observationMode">
+            <i class="el-icon-edit-outline big-icon"></i>
+            观察模式
+          </button>
+          <button @click="getResults">
+            <i class="el-icon-search big-icon"></i>
+            {{ setUpName }}
+          </button>
+        </div>
         <!-- 隐藏的原生文件输入 -->
-        <input type="file" webkitdirectory directory multiple @change="startBulkUpload" hidden ref="folderInput">
-        <button @click="$refs.folderInput.click(), setBulkStatus()"> 批量上传 </button>
-        <button @click=" setBulkStatus()">单张上传</button>
-        <button @click="getResults">{{ setUpName }}</button>
+        <!-- <input type="file" webkitdirectory directory multiple @change="startBulkUpload" hidden ref="folderInput"> -->
       </div>
-      <div class="probabilities" v-if="hasAnalysis">
-        <button v-for="(image, index) in images" :key="index" @click="showProbabilities(index)">
-          显示 {{ image.name }} 的概率
-        </button>
+      <div class="probabilities">
+        <div v-if="hasAnalysis" class="probability-buttons">
+          <button v-for="(image, index) in isBulkUpload ? groupedImages[selectedGroup] : images" :key="index"
+            @click="showProbabilities(index)" :class="{ active: activeIndex === index }">
+            图像{{ index + 1 }}的概率
+          </button>
+        </div>
         <!-- 根据当前激活的索引展示对应的 probabilities -->
-        <div v-if="activeIndex !== null" class="progress">
-          <StatusBar :progresses="images[activeIndex].probabilities"></StatusBar>
+        <div class="progress">
+          <StatusBar
+            :progresses="hasAnalysis ? (isBulkUpload ? groupedImages[selectedGroup] : images)[activeIndex].probabilities : undefined">
+          </StatusBar>
         </div>
       </div>
-      <div v-else class="progresses-empty">
+      <!-- <div v-else class="progresses-empty">
         启动AI分析以获取结果
-      </div>
+      </div> -->
     </div>
   </div>
 </template>
@@ -91,31 +155,58 @@ export default {
     StatusBar,
     ImageUploader,
   },
+  computed: {
+    filteredEyeGroundImageResult() {
+      return this.imageResult.filter(image => image.name === 'left' || image.name === 'right');
+    },
+    filteredOCTImageResult() {
+      return this.imageResult.filter(image => image.name === 'left-oct' || image.name === 'right-oct');
+    }
+  },
   data() {
     return {
+      // singleButtonName: ["左眼眼底图", "右眼眼底图", "左眼OCT图像", "右眼OCT图像"],
       imageKind: {//四种按钮的bool，点击显示对应的组件  //10:38 
         1: false,
         2: false,
         3: false,
         4: false
       },
+      hasSingleUpload: {
+        1: false,
+        2: false,
+        3: false,
+        4: false
+      },
+      groupImageKind: [[]],
       imageFundus: [],//两种眼底图
       imageOCT: [],//两种OCT图像
       hasCommitted: false,//是否已上传    //10:38
       hasAnalysis: false,//是否已分析
-      initialImages: [],
-      resultImages: [],
+      // hasBulkUpload: false,
+      // initialImages: [],
+      // resultImages: [],
       setUpName: "启动AI分析",
       activeIndex: 0, //分析部分的按钮选择的下标
-      probabilities: [],
+      // probabilities: [],
       isLoading: false,
       images: [],
-      imageResult: [],
+      groupedImages: [], //分组之后的图片,用于分组显示
+      imageResult: [],//单张结果图
+      enforceImageResults: {
+        1: null,
+        2: null,
+        3: null,
+        4: null,
+      },
+      //单张增强图结果
+      groupedImagesResult: [],//分组后的结果图
+      groupedEnforceImagesResults: [],//分组后的增强图
       // imageSrc: "",
       // imagePaths: [],
       // imageResult: [{
       //   name: "oct",
-      //   path: textImage2,
+      //   path: base64,
       //   hasLegend: true,
       //   legends: [
       //     { "color": "#FF5733", "name": "活力橙" },
@@ -133,42 +224,72 @@ export default {
       // uploadedImg: [],
       isUploadImg: false,
       isBulkUpload: false,  //是否为批量上传
-      currentPage: 0//批量上传时的预览页码
+      selectedGroup: 0,
+      totalGroup: 0,
+      // currentPage: 0//批量上传时的预览页码
     };
-  },
-  computed: {
-    totalPages() {
-      return Math.ceil(this.images.length / 2) - 1;
-    },
-    currentCommittedImages() {
-      const start = this.currentPage * 2;
-      return this.images.slice(start, start + 2);
-    },
-    currentResultImages() {
-      const start = this.currentPage * 2;
-      return this.imageResult.slice(start, start + 2);
-    }
   },
   methods: {
     //批量上传左切预览图
     prevPage() {
-      if (this.currentPage > 0) {
-        this.currentPage--;
+      if (this.selectedGroup > 0) {
+        this.selectedGroup--;
       }
+      this.activeIndex = 0;
     },
     //批量上传右切预览图
     nextPage() {
-      if (this.currentPage < this.totalPages) {
-        this.currentPage++;
+      if (this.selectedGroup < this.totalGroup) {
+        this.selectedGroup++;
       }
+      this.activeIndex = 0;
     },
     //点击切换上传模式
     setBulkStatus() {
-      this.isBulkUpload = !this.isBulkUpload;
+      const resetData = () => {
+        this.isUploadImg = false;
+        if (this.images.length > 0) this.images = [];
+        if (this.groupedImages.length > 0) this.groupedImages = [];
+        this.hasAnalysis = false;
+        if (this.imageResult.length > 0) {
+          this.imageResult = [];
+          this.enforceImageResults = {
+            1: null,
+            2: null,
+            3: null,
+            4: null,
+          };
+        }
+        if (this.groupedImagesResult.length > 0) {
+          this.groupedImagesResult = [];
+          this.groupedEnforceImagesResults = [];
+        }
+        this.activeIndex = 0;
+        this.setUpName = "启动AI分析";
+      };
+      if (this.isUploadImg) {
+        this.$confirm('你已上传过图片,切换模式将不保留已上传图片, 是否继续?', '提示', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'warning'
+        }).then(() => {
+          this.isBulkUpload = !this.isBulkUpload;
+          resetData();
+        }).catch(() => { });
+      } else {
+        this.isBulkUpload = !this.isBulkUpload;
+        resetData();
+      }
     },
     //多张上传
     async startBulkUpload(event) {
-      this.isBulkUpload = true;
+      if (event.target.files.length === 0) {
+        console.log('用户点击了取消');
+        return;
+      }
+      // this.isBulkUpload = true;
+      // this.hasBulkUpload = true;
+      this.isUploadImg = true;
       const files = Array.from(event.target.files);
       const folderStructure = {};
       let idx = 1;
@@ -189,9 +310,9 @@ export default {
 
       if (Object.entries(folderStructure).length) {//有新数据才置空
         this.images = [];
-        this.resultImages = [];
-        this.hasCommitted = false;
-        this.currentPage = 0;
+        this.imageResult = [];
+        // this.hasCommitted = false;
+        this.selectedGroup = 0;
       }
       //每一个子文件夹的图片
       for (const [folderName, files] of Object.entries(folderStructure)) {
@@ -208,6 +329,29 @@ export default {
       }
       // 根据索引排序
       this.images.sort((a, b) => a.index - b.index);
+      this.groupedImages = this.getGroupedImages(this.images);
+      // this.groupImageKind = this.getGroupedImages(this.images).map(group => group.map(() => false));
+      this.groupImageKind = this.getImageKindByImages(this.groupedImages);
+      // console.log(this.groupImageKind);
+      this.totalGroup = this.groupedImages.length;
+    },
+    getGroupedImages(images) {
+      const groups = {};
+      images.forEach((image) => {
+        if (!groups[image.index]) {
+          groups[image.index] = [];
+        }
+        groups[image.index].push(image);
+      });
+      return Object.values(groups);
+    },
+    getImageKindByImages(images) {
+      return images.map(item => {
+        if (Array.isArray(item)) {
+          return this.getImageKindByImages(item);
+        }
+        return false;
+      });
     },
     // 文件转Base64
     async readFileAsBase64(file) {
@@ -219,37 +363,65 @@ export default {
       });
     },
     ImageUploaderButton(type) {//10:38
-      this.imageKind[type] = !this.imageKind[type];
+      if (!this.isBulkUpload) this.imageKind[type] = !this.imageKind[type];
+      else this.$set(this.groupImageKind[this.selectedGroup], type, !this.groupImageKind[this.selectedGroup][type]);
     },
     imageUpload(payload, type) {
-      if (type === 1) {
-        this.imageFundus.push({
-          index: 1,
-          name: "left",
-          path: payload.base64,
-          probabilities: []
-        })
-      } else if (type === 2) {
-        this.imageFundus.push({
-          index: 2,
-          name: "right",
-          path: payload.base64,
-          probabilities: []
-        })
-      } else if (type === 3) {
-        this.imageOCT.push({
-          index: 3,
-          name: "left-oct",
-          path: payload.base64,
-          probabilities: []
-        })
-      } else {
-        this.imageOCT.push({
-          index: 4,
-          name: "right-oct",
-          path: payload.base64,
-          probabilities: []
-        })
+      const newItem = {
+        index: type,
+        name: "",
+        path: payload.base64,
+        probabilities: []
+      };
+      switch (type) {
+        case 1:
+          newItem.name = "left";
+          if (this.hasSingleUpload[1]) {
+            const indexToReplace = this.imageFundus.findIndex(item => item.index === 1);
+            if (indexToReplace !== -1) {
+              this.imageFundus.splice(indexToReplace, 1, newItem);
+            }
+          } else {
+            this.imageFundus.push(newItem);
+          }
+          this.hasSingleUpload[1] = true;
+          break;
+        case 2:
+          newItem.name = "right";
+          if (this.hasSingleUpload[2]) {
+            const indexToReplace = this.imageFundus.findIndex(item => item.index === 2);
+            if (indexToReplace !== -1) {
+              this.imageFundus.splice(indexToReplace, 1, newItem);
+            }
+          } else {
+            this.imageFundus.push(newItem);
+          }
+          this.hasSingleUpload[2] = true;
+          break;
+        case 3:
+          newItem.name = "left-oct";
+          if (this.hasSingleUpload[3]) {
+            const indexToReplace = this.imageOCT.findIndex(item => item.index === 3);
+            if (indexToReplace !== -1) {
+              this.imageOCT.splice(indexToReplace, 1, newItem);
+            }
+          } else {
+            this.imageOCT.push(newItem);
+          }
+          this.hasSingleUpload[3] = true;
+          break;
+        case 4:
+          newItem.name = "right-oct";
+          if (this.hasSingleUpload[4]) {
+            const indexToReplace = this.imageOCT.findIndex(item => item.index === 4);
+            if (indexToReplace !== -1) {
+              this.imageOCT.splice(indexToReplace, 1, newItem);
+            }
+          } else {
+            this.imageOCT.push(newItem);
+          }
+          this.hasSingleUpload[4] = true;
+          break;
       }
       this.handleImageUpload();
     },
@@ -261,28 +433,34 @@ export default {
       this.isUploadImg = true;
     },//10:38
     async getResults() {
-      this.isLoading = true;
-      this.hasCommitted = true;
-      // 这里模拟加载过程，假设 3 秒后加载完成，隐藏加载动画，模拟获取答案
-      setTimeout(() => {
-        this.isLoading = false;
-        this.setUpName = "重新进行分析";
-        // this.probabilities = [
-        //   { name: "轻度非增生性病变", probability: 1 },
-        //   { name: "中度非增生性病变", probability: 0.12 },
-        //   { name: "重度非增生性病变", probability: 0.04 },
-        //   { name: "增生性病变", probability: 0.03 },
-        //   { name: "疑似青光眼病变", probability: 0.02 },
-        //   { name: "早期青光眼", probability: 0.01 },
-        //   { name: "中期青光眼", probability: 0.01 },
-        //   { name: "晚期青光眼", probability: 0.01 },
-        //   { name: "病理性近视", probability: 0.01 }
-        // ];
-        // // this.imagePaths = this.imageResult;
-        this.imageResult = this.images;
-        this.isUploadImg = true;
-        this.hasAnalysis = true;//是否测试改为true
-      }, 3000);
+      if (!this.isUploadImg) {
+        this.$alert('请先上传图片!', '注意', {
+          confirmButtonText: '确定',
+          callback: () => { }
+        });
+      } else {
+        this.isLoading = true;
+        // this.hasCommitted = true;
+        // 这里模拟加载过程，假设 3 秒后加载完成，隐藏加载动画，模拟获取答案
+        setTimeout(() => {
+          this.isLoading = false;
+          this.setUpName = "重新进行分析";
+          //这里results本应该接受分析后的结果
+          const results = this.images;
+          const enforceResults = this.images.reverse();
+          if (!this.isBulkUpload) {
+            this.imageResult = results;
+            for (let image of enforceResults)
+              this.enforceImageResults[image.index] = image;
+          }
+          else {
+            this.groupedImagesResult = this.getGroupedImages(results);
+            this.groupedEnforceImagesResults = this.getGroupedImages(enforceResults);
+          }
+          this.isUploadImg = true;
+          this.hasAnalysis = true;//是否分析改为true
+        }, 3000);
+      }
     },
     observationMode() {
       if (!this.isUploadImg) {
@@ -294,13 +472,32 @@ export default {
         this.$router.push({
           path: '/imageObservation',
           query: {
-            images: this.images,
+            images: this.isBulkUpload ? this.groupedImages : this.images,
             imagePaths: this.imagePaths,
             imageSrc: this.imageSrc,
-            probabilities: this.probabilities
+            isBulkUpload: this.isBulkUpload
           }
         })
       }
+    },
+    reBulkUpload() {
+      this.$confirm('重新上传将不保留现有已上传的图片, 是否继续?', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        this.isUploadImg = false;
+        this.hasAnalysis = false;
+        this.activeIndex = 0
+        this.selectedGroup = 0;
+        this.totalGroup = 0;
+        this.setUpName = "启动AI分析";
+        this.groupImageKind = [];
+        this.groupedImages = [];
+        this.groupedImagesResult = [];
+        this.groupedEnforceImagesResults = [];
+
+      }).catch(() => { });
     },
     onRectangleAdded(rectangle) {
       console.log("这是父组件的矩形框添加:", rectangle);
@@ -315,126 +512,510 @@ export default {
       this.activeIndex = index;
     },
   },
+  watch: {
+    images: {
+      handler(newValue) {
+        this.isUploadImg = newValue.length > 0;
+      },
+      deep: true // 深度监听数组变化
+    }
+  }
 };
 </script>
 
 <style scoped>
 #imageAnalysis {
-  background: linear-gradient(135deg, #f5f5f5 0%, #e3f2fd 100%);
+  width: calc(100% - 30px);
+  height: calc(100% - 30px);
+  padding: 15px;
+  background: white;
   display: flex;
-  height: 100%;
+  overflow: hidden;
 }
 
 .submit-and-results {
-  width: 70%;
-  border: 2px solid black;
-  background-color: #1A1F28;
-  border-bottom-left-radius: 10px;
+  width: calc(70% - 20px);
+  border: none;
+  margin-right: 20px;
+  /* box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3); */
+  background: white;
+  backdrop-filter: blur(10px);
+  transition: all 0.3s ease;
 }
 
 .submit {
   width: 100%;
-  height: 50%;
-  border-bottom: 2px dashed #cccccc60;
+  height: calc(50% - 10px);
+  padding: 0 15px 25px 0;
 }
 
 .results {
   width: 100%;
-  height: 50%;
+  height: calc(50% - 15px);
+}
+
+.single-results {
+  width: 100%;
+  height: 100%;
+  display: flex;
+}
+
+.eyeGround-results {
+  width: 50%;
+  height: 100%;
+  margin-right: 20px;
+  background: linear-gradient(135deg, #d4f4ef 0%, #e4f9f5 100%);
+  border-radius: 12px;
+  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.25);
+  border: 1px solid rgba(255, 255, 255, 0.5);
+}
+
+.oct-results {
+  width: 50%;
+  height: 100%;
+  background: linear-gradient(135deg, #d4f4ef 0%, #e4f9f5 100%);
+  border-radius: 12px;
+  /* 添加盒阴影 */
+  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.25);
+  border: 1px solid rgba(255, 255, 255, 0.5);
+}
+
+.bulk-results {
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, #d4f4ef 0%, #e4f9f5 100%);
+  border-radius: 12px;
+  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.25);
+  border: 1px solid rgba(255, 255, 255, 0.5);
+}
+
+.title {
+  margin-top: 10px;
+  text-align: center;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  font-size: 20px;
+  font-weight: 600;
+  color: #2c6d62;
+  letter-spacing: 2px;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+  margin-bottom: 10px;
 }
 
 .states {
   width: 30%;
-  border: 2px solid black;
-  /* background: linear-gradient(135deg, #e0f7fa 0%, #e8f5e9 100%); */
-  /* background: linear-gradient(135deg, #fff8e1 0%, #e1f5fe 100%); */
-  /* background: linear-gradient(135deg, #f5f5f5 0%, #e3f2fd 100%); */
-  background-color: #1A1F28;
-  border-bottom-right-radius: 10px;
+  border: none;
+  border-radius: 10px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+  background: linear-gradient(135deg, #a8d8d0 0%, #bce8e1 100%);
 }
 
 .setUp {
+  width: 100%;
+  height: 20%;
+  border-bottom: 1px solid rgba(61, 115, 105, 0.1);
   display: flex;
-  height: 15%;
-  border-bottom: 2px solid black;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
+  position: relative;
+  background: linear-gradient(135deg, #b2e2da 0%, #c6f2eb 100%);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  border-radius: 10px 10px 0 0;
+  z-index: 1;
 }
 
-/* .setUp button {
-  width: 100%;
-  padding: 10px 20px;
-  background-color: #CCCCCC;
-  color: #528708;
+.setUp button {
+  width: calc(50% - 20px);
+  height: calc(100% - 20px);
+  margin: 10px;
+  padding: 12px 24px;
+  background: linear-gradient(135deg, #c2e8e2 0%, #d4f4ef 100%);
+  color: #2a5e55;
   border: none;
-  border-radius: 5px;
+  border-radius: 30px;
+  font-weight: 600;
+  letter-spacing: 1px;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
   cursor: pointer;
-  transition: background-color 0.3s ease, transform 0.3s ease;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-} */
+  align-items: center;
+}
+
+.setUp button:hover {
+  background: linear-gradient(135deg, #b1dbd5 0%, #c2e8e2 100%);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+  transform: translateY(-2px);
+}
+
+.setUp button.active {
+  background: #388e3c;
+  color: #fff;
+  box-shadow: 0 4px 8px rgba(56, 142, 60, 0.2);
+  transform: scale(1.05);
+}
+
+.setUp button::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(255, 255, 255, 0.2);
+  transform: translateY(-100%);
+  transition: transform 0.3s ease;
+}
+
+.setUp button:hover::before {
+  transform: translateY(0);
+}
+
+.big-icon {
+  font-size: 20px;
+  margin-right: 8px; /* 可根据需要调整图标与文字的间距 */
+}
+
+.setUp::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  bottom: -20px;
+  width: 80%;
+  height: 1px;
+  background: linear-gradient(90deg, transparent 30%, rgba(42, 94, 85, 0.1) 50%, transparent 70%);
+}
+
+.mode {
+  width: 100%;
+}
+
+.tools {
+  width: 100%;
+}
 
 .probabilities {
+  height: calc(80% - 40px);
   padding: 20px;
   border-bottom-right-radius: 10px;
   text-align: center;
-  color: #CCCCCC;
+  color: #2a5e55;
+  overflow-y: scroll;
+  /* 隐藏滚动条（Firefox） */
+  scrollbar-width: none;
 }
 
-.progress {
-  margin-top: 10px;
+.probability-buttons {
+  padding: 0 10px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
 }
+
+.probability-buttons button {
+  /* 调小宽度 */
+  padding: 4px 6px;
+  background: rgba(255, 255, 255, 0.2);
+  color: #2a5e55;
+  border: none;
+  /* 修改圆角，模拟书签形状 */
+  border-radius: 8px 8px 0 0;
+  font-weight: 500;
+  letter-spacing: 0.5px;
+  transition: all 0.3s ease;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+  box-shadow: none;
+  /* 减小最小宽度 */
+  min-width: 80px;
+}
+
+.probability-buttons button::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: 0;
+  /* 绘制三角形 */
+  width: 0;
+  height: 0;
+  border-top: 12px solid #2a5e55;
+  border-left: 12px solid transparent;
+}
+
+.probability-buttons button.active {
+  background: #4CAF50;
+  color: white;
+  box-shadow: 0 4px 8px rgba(76, 175, 80, 0.2);
+  transform: translateY(0) scale(1.05);
+  font-weight: 600;
+}
+
+.probability-buttons button.active::after {
+  /* 激活状态下三角形颜色改变 */
+  border-top: 12px solid white;
+}
+
+.probability-buttons button::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(76, 175, 80, 0.2);
+  transform: scale(0);
+  filter: blur(5px);
+  transition: transform 0.3s ease, filter 0.3s ease;
+}
+
+.probability-buttons button:hover::before {
+  transform: scale(1);
+  filter: blur(0);
+}
+
+/* .progress {
+  margin-top: 20px;
+} */
 
 .progresses-empty {
   width: 100%;
   text-align: center;
   font-size: 30px;
+  color: #999;
 }
 
-.imageContainer,
+.single-submit {
+  width: 100%;
+  display: flex;
+  height: 100%;
+}
+
+.eyeGround-group {
+  width: calc(50% - 10px);
+  margin-right: 20px;
+  background: linear-gradient(135deg, #d4f4ef 0%, #e4f9f5 100%);
+  border-radius: 12px;
+  /* 添加盒阴影 */
+  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.25);
+  border: 1px solid rgba(255, 255, 255, 0.5);
+}
+
+.oct-group {
+  width: calc(50% - 10px);
+  background: linear-gradient(135deg, #d4f4ef 0%, #e4f9f5 100%);
+  border-radius: 12px;
+  /* 添加盒阴影 */
+  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.25);
+  border: 1px solid rgba(255, 255, 255, 0.5);
+}
+
+.batch-submit {
+  width: 100%;
+  height: 100%;
+  /* 使用渐变背景 */
+  background: linear-gradient(135deg, #d4f4ef 0%, #e4f9f5 100%);
+  border-radius: 12px;
+  /* 添加盒阴影 */
+  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.25);
+  /* 优化边框样式 */
+  border: 1px solid rgba(255, 255, 255, 0.5);
+}
+
+.imageContainer {
+  width: 100%;
+  height: 80%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
 .bulkImageContainer {
+  width: 100%;
+  height: 80%;
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
-.images {
-  margin: 0 12px 0 12px;
+.bulk-images {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
-/* 新增按钮样式 */
+/* 待定 */
+.group-number {
+  position: absolute;
+  right: 0;
+  top: 10px;
+  transform: translateX(-50%);
+  color: #fff;
+  background-color: rgba(0, 0, 0, 0.5);
+  padding: 5px 10px;
+  border-radius: 5px;
+  font-size: 14px;
+}
+
+.arrow {
+  position: absolute;
+  top: 25%;
+  transform: scaleX(0.5) translateY(-50%);
+  font-size: 50px;
+  color: black;
+  background-color: transparent;
+  cursor: pointer;
+  z-index: 10;
+}
+
+.left-arrow {
+  left: 15px;
+}
+
+.right-arrow {
+  right: 15px;
+}
+
+.reUpload-icon {
+  position: absolute;
+  top: 40%;
+  right: 15px;
+  background:linear-gradient(135deg, #2c6d62 0%, #388e3c 100%);;
+  color: white;
+  border: none;
+  padding: 10px 15px;
+  border-radius: 5px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+}
+
+/* 这是原来的样式 */
+/* .images {
+  margin: 0 12px 0 12px;
+} */
+
+.images {
+  margin: 12px;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  overflow: hidden;
+  /* transition: transform 0.3s ease; */
+  transform: scale(1);
+  transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+.images:hover {
+  transform: scale(1.05);
+}
+
+.single-image {
+  width: 100%;
+}
+
+.single-result {
+  width: 45%;
+}
+
+.group-image {
+  width: 22%;
+}
+
 .imageSelectorContainer {
-  padding: 15px;
+  width: calc(100% - 20px);
+  padding: 10px;
   background: rgba(0, 0, 0, 0.1);
   border: 1px solid rgba(0, 0, 0, 0.1);
   border-radius: 8px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 .imageSelector {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 10px;
-}
-
-button {
-  padding: 10px 15px;
-  border: 2px solid transparent;
-  color: #4CAF50;
-  background-color: #CCCCCC;
-  border-radius: 4px;
+  width: 30%;
+  height: 10%;
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  cursor: pointer;
+  z-index: 3;
+  text-align: center;
   transition: all 0.3s ease;
+}
+
+.imageSelector:hover {
+  transform: scale(1.05);
+}
+
+.imageSelector button {
+  width: 100%;
+  cursor: pointer;
+  font-size: 12px;
+  border: none;
+  margin: 0;
+  color: #fff;
+  background: linear-gradient(135deg, #2c6d62 0%, #388e3c 100%);
+  border-radius: 8px;
+  font-weight: 600;
+  padding: 8px 12px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  transition: all 0.3s ease;
+}
+
+.imageSelector button:hover {
+  background: linear-gradient(135deg, #388e3c 0%, #2c6d62 100%);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+  transform: translateY(-2px);
+}
+
+.imageSelector button.active {
+  color: #fff;
+  background: linear-gradient(135deg, #388e3c 0%, #4caf50 100%);
+  box-shadow: 0 4px 8px rgba(76, 175, 80, 0.4);
+  transform: scale(1.05);
+}
+
+input[type="file"] {
+  padding: 12px 24px;
+  background: linear-gradient(135deg, #c2e8e2 0%, #d4f4ef 100%);
+  color: #2a5e55;
+  border: 3px solid #2a5e55;
+  border-radius: 30px;
+  font-weight: 600;
+  letter-spacing: 1px;
+  transition: all 0.3s ease;
+  cursor: pointer;
+  box-shadow: 0 0 0 3px rgba(42, 94, 85, 0.2), 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+input[type="file"]::file-selector-button {
+  border: none;
+  background: transparent;
+  padding: 0;
+  margin: 0;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
   position: relative;
-  font-weight: 500;
+  z-index: 1;
 }
 
-button.active {
-  background: #2d2d2d;
-  border: 2px solid #4CAF50;
-  box-shadow: 0 0 10px rgba(76, 175, 80, 0.4);
+input[type="file"]:hover {
+  background: linear-gradient(135deg, #b1dbd5 0%, #c2e8e2 100%);
+  border-color: #388e3c;
+  box-shadow: 0 0 0 3px rgba(56, 142, 60, 0.3), 0 8px 20px rgba(0, 0, 0, 0.15);
+  transform: translateY(-2px);
+}
+
+input[type="file"]:focus {
+  outline: none;
+  background: linear-gradient(135deg, #a0cfc6 0%, #b1dbd5 100%);
+  border-color: #4caf50;
+  box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.4), 0 0 10px rgba(42, 94, 85, 0.4);
   transform: scale(1.04);
-}
-
-button:hover {
-  background: #2d2d2d;
-  border-color: #4CAF50;
 }
 </style>

@@ -29,47 +29,14 @@ export default {
     colorList: {
       type: Array,
       default: () => [
-        "rgba(91, 142, 254,0.7)",
-        "rgba(209, 215, 197,0.7)",
-        "rgba(151, 122, 192,0.7)",
-        "rgba(77, 185, 69,0.7)",
-        "rgba(239, 186, 129,0.7)",
-        "rgba(189, 85, 251,0.7)",
-        "rgba(155, 187, 211,0.7)"
+        "#91C7AE",
+        "#C23531",
+        "#2F4554",
+        "#6AB0B8",
+        "#E98F6F",
+        "#B296A7",  // 紫灰玫瑰色
+        "#5F7878"   // 石板青灰色
       ]
-    },
-    gradientColorList: {
-      type: Array,
-      default: () => [
-        [
-          { offset: 0, color: "rgba(91, 142, 254, 1)" },
-          { offset: 1, color: "rgba(71, 122, 254, 0.1)" },
-        ],
-        [
-          { offset: 0, color: "rgba(209, 215, 197, 1)" },
-          { offset: 1, color: "rgba(189, 195, 177, 0)" },
-        ],
-        [
-          { offset: 0, color: "rgba(151, 122, 192, 1)" },
-          { offset: 1, color: "rgba(131, 102, 172, 0)" },
-        ],
-        [
-          { offset: 0, color: "rgba(77, 185, 69, 1)" },
-          { offset: 1, color: "rgba(77, 165, 69, 0.1)" },
-        ],
-        [
-          { offset: 0, color: "rgba(239, 186, 129, 1)" },
-          { offset: 1, color: "rgba(219, 166, 109, 0.1)" },
-        ],
-        [
-          { offset: 0, color: "rgba(189, 85, 251, 1)" },
-          { offset: 1, color: "rgba(169, 65, 231, 0.1)" },
-        ],
-        [
-          { offset: 0, color: "rgba(155, 187, 211,1)" },
-          { offset: 1, color: "rgba(135, 167, 191, 0.1)" },
-        ],
-      ],
     },
   },
   data() {
@@ -120,9 +87,9 @@ export default {
           {
             name: "数据",
             type: "pie",
-            radius: "70%",
-            center: ['30%', '50%'], // 设置饼图中心位置，让饼图居左
+            center: ['30%', '50%'],
             color: this.colorList,
+            roseType: 'radius',    // 使用radius类型，可减小差异
             data: formattedData,
             label: {
               color: this.labelColor,
@@ -132,8 +99,8 @@ export default {
               show: false // 隐藏引导线
             },
             itemStyle: {
-              borderColor: this.labelColor, // 边框颜色，这里设置为白色
-              borderWidth: 2 // 边框宽度，单位为像素
+              borderColor: this.labelColor, // 边框颜色
+              borderWidth: 0 // 将边框宽度设置为0即可去除线框
             }
           },
         ],
@@ -152,11 +119,14 @@ export default {
 
 <style scoped>
 #pieChart {
+  background-color: rgb(250,250,250);
   width: 80%;
-  height: 100%;
+  height: calc(100% - 35px);
 }
 
 #PieChart {
+  background-color: rgb(250,250,250);
+  width: 80%;
   margin: 20px;
 }
 </style>

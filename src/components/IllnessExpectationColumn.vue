@@ -14,9 +14,6 @@
         </div>
       </div>
     </div>
-    <!-- <div v-else class="progresses-empty">
-      启动AI分析以获取结果
-    </div> -->
   </div>
 </template>
 
@@ -25,7 +22,26 @@ export default {
   props: {
     progresses: {
       type: Array,
-      default: () => []
+      default: () => [
+        { name: "轻度非增生性病变", probability: 1 },
+        { name: "中度非增生性病变", probability: 0 },
+        { name: "重度非增生性病变", probability: 0 },
+        { name: "增生性病变", probability: 0 },
+        { name: "疑似青光眼病变", probability: 0 },
+        { name: "早期青光眼", probability: 0 },
+        { name: "中期青光眼", probability: 0 },
+        { name: "晚期青光眼", probability: 0 },
+        { name: "病理性近视", probability: 0 },
+        { name: "近视性黄斑病变", probability: 0 },
+        { name: "近视性视网膜病变", probability: 0 },
+        { name: "近视性视网膜病变", probability: 0 },
+        { name: "干性AMD", probability: 0 },
+        { name: "湿性AMD", probability: 0 },
+        { name: "白内障病变", probability: 0 },
+        { name: "疑似白内障病变", probability: 0 },
+        { name: "其他", probability: 0 },
+        { name: "正常", probability: 0 }
+      ]
     }
   },
   data() {
@@ -80,87 +96,76 @@ export default {
 </script>
 
 <style scoped>
-#IllnessExpectation{
-  width:100%;
+#IllnessExpectation {
+  width: calc(100% - 20px);
+  padding: 10px;
+  background: linear-gradient(135deg, #d4f4ef 0%, #e4f9f5 100%);
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
 /* 每个进度条项的样式 */
 .progress-item {
-  width:100%;
+  width: 100%;
   display: flex;
   align-items: center;
-  margin-bottom: 10px;
+  margin-bottom: 15px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  transition: all 0.3s ease;
+}
+
+.progress-item:hover {
+  background: rgba(255, 255, 255, 0.2);
+  transform: translateX(5px);
 }
 
 /* 疾病名称的样式，设置右对齐 */
 .progress-name {
-  width: 30%;
+  width: 40%;
   /* 可根据实际情况调整宽度 */
   margin-right: 10px;
   text-align: center;
+  color: #2a5e55;
+  font-weight: 550;
+  /* letter-spacing: 0.5px; */
 }
 
 /* 进度条容器的样式 */
 .progress-container {
-  width:70%;
+  width: 70%;
   background-color: #ececec;
-  border-radius: 5px;
+  border-radius: 12px;
   overflow: hidden;
-  box-shadow: 0 0 5px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1) inset;
 }
 
 /* 进度条的样式 */
 .progress-bar {
   height: 15px;
-  background: linear-gradient(to right,
-      hsl(209, 70%, 30%) 0%,
-      hsl(209, 70%, 32%) 4%,
-      hsl(209, 70%, 34%) 8%,
-      hsl(209, 70%, 36%) 12%,
-      hsl(209, 70%, 38%) 16%,
-      hsl(209, 70%, 40%) 20%,
-      hsl(209, 70%, 42%) 24%,
-      hsl(209, 70%, 44%) 28%,
-      hsl(209, 70%, 46%) 32%,
-      hsl(209, 70%, 48%) 36%,
-      hsl(209, 70%, 50%) 40%,
-      hsl(209, 70%, 52%) 44%,
-      hsl(209, 70%, 54%) 48%,
-      hsl(209, 70%, 56%) 52%,
-      hsl(209, 70%, 58%) 56%,
-      hsl(209, 70%, 60%) 60%,
-      hsl(209, 70%, 62%) 64%,
-      hsl(209, 70%, 64%) 68%,
-      hsl(209, 70%, 66%) 72%,
-      hsl(209, 70%, 68%) 76%,
-      hsl(209, 70%, 70%) 80%,
-      hsl(209, 70%, 72%) 84%,
-      hsl(209, 70%, 74%) 88%,
-      hsl(209, 70%, 76%) 92%,
-      hsl(209, 70%, 78%) 96%,
-      hsl(209, 70%, 80%) 100%);
-  border-radius: 5px;
+  background: linear-gradient(90deg,
+      #4CAF50 0%,
+      #81C784 30%,
+      #A5D6A7 60%,
+      #C8E6C9 100%);
+  border-radius: 10px;
   width: 100%;
   position: relative;
   text-align: center;
   color: white;
-  transition: width 0.5s ease;
+  transition: width 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
 }
 
 /* 概率百分比的样式 */
 .progress-percentage {
   position: absolute;
   top: 50%;
-  left:calc(80% + 20px);
+  left: calc(80% + 20px);
   transform: translate(-50%, -50%);
-  color: black;
+  color: #2a5e55;
   font-size: 12px;
+  font-weight: 500;
+  opacity: 0.8;
   /* 可根据需要调整字体大小 */
 }
-
-/* .progresses-empty {
-  width:100%;
-  text-align: center;
-  font-size: 30px;
-} */
 </style>

@@ -1,5 +1,5 @@
 <template>
-  <div class="upload-wrapper" :class="{ 'is-disabled': disabled }">
+  <div :class="{ 'is-disabled': disabled }">
     <div class="upload-container" @dragover.prevent="handleDragOver" @dragleave="handleDragLeave"
       @drop.prevent="handleDrop" :style="{ borderColor: dragActive ? '#BAE67E' : '#dcdfe6' }">
       <!-- 隐藏原生文件输入控件 -->
@@ -43,7 +43,6 @@ export default {
     imageFile: {
       handler(newValue) {
         this.previewUrl = newValue;
-        // console.log(this.previewUrl);
       },
       deep: true
     }
@@ -53,11 +52,9 @@ export default {
     this.previewUrl=this.imageFile;
   },
   methods: {
-    //点击触发文件选择对话框
     triggerFileSelect() {
       this.$refs.fileInput.click();
     },
-    //处理文件选择事件
     handleFileSelect(e) {
       this.processFile(e.target.files[0]);
     },
@@ -69,14 +66,12 @@ export default {
       this.dragActive = false;
       this.isDragging = false;
     },
-
     //处理文件拖放事件
     handleDrop(e) {
       this.dragActive = false;
       this.isDragging = false; // 明确重置拖拽状态
       this.processFile(e.dataTransfer.files[0]);
     },
-
     processFile(file) {
       // 文件类型验证
       if (!file.type.startsWith('image/')) {
@@ -99,21 +94,15 @@ export default {
 </script>
 
 <style scoped>
-/* .upload-wrapper {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start; 
-  gap: 20px;
-} */
 
 .upload-container {
   position: relative;
-  /* 为绝对定位图标提供参照 */
-  width: 250px;
-  height: 250px;
+  width: 100%;
+  height: 100%;
+  aspect-ratio: 1/1;
   border: 2px dashed #dcdfe6;
   border-radius: 8px;
-  background: #1A1F28;
+  background: transparent;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -125,19 +114,32 @@ export default {
   width: 100%;
   height: 100%;
   object-fit: contain;
+  z-index: 1; /* 设置图片层级 */
+}
+
+.upload{
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 2; /* 设置上传区域层级 */
 }
 
 .action-icon {
   position: absolute;
+  width:100%;
+  height:100%;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
   z-index: 2;
-  opacity: 1;
   /* 默认显示 */
+  opacity: 1;
   transition: opacity 0.3s;
-  cursor: pointer;
   /* 禁止文本选择 */
+  cursor: pointer;
   user-select: none;
   border-radius: 50%;
 }
@@ -160,17 +162,10 @@ export default {
 
 .el-icon-refresh-right,
 .el-icon-plus {
+  position: relative;
+  top: calc(50% - 20px);
+  left: calc(50% - 20px);
   color: #909399;
   font-size: 40px;
-  text-align: center;
-}
-
-.image-uploader-container.is-disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-}
-
-.image-uploader-container.is-disabled input {
-  pointer-events: none;
 }
 </style>

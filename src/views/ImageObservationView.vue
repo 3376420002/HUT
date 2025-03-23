@@ -1,13 +1,15 @@
 <template>
   <div id="ImageObserve">
     <button v-if="isBulkUpload && !isBulkContainerOpen" @click="toggleBulkContainer" class="toggle-button">
-      图片集
+      <span class="button-text">
+        <i class="el-icon-arrow-right"></i>
+      </span>
     </button>
     <div v-if="isBulkUpload" class="left-bulkBar" :class="{ 'slide-in': isBulkContainerOpen }">
       <button @click="toggleBulkContainer" class="close-button">关闭</button>
       <div class="bulk-container" v-if="isBulkUpload">
         <div class="thumbnail">
-          <div v-for="(group, groupIndex) in groupedImages" :key="groupIndex">
+          <div v-for="(group, groupIndex) in images" :key="groupIndex">
             <div class="image-row" :class="{ 'selected-row': selectedGroup === groupIndex }"
               @click="handleExchangeImages(groupIndex)">
               <img v-for="(image, index) in group" :key="index" :src="image.path" class="thumbnail-image"
@@ -19,7 +21,7 @@
     </div>
     <div class="right-canvas" :style="{ width: isBulkContainerOpen ? `calc(100% - 20%)` : '100%' }"
       :class="{ 'slide-right': isBulkContainerOpen }">
-      <ImageRectangleDrawer :images="isBulkUpload ? groupedImages[selectedGroup] : images" :imageSrc="imageSrc"
+      <ImageRectangleDrawer :images="isBulkUpload ? images[selectedGroup] : images" :imageSrc="imageSrc"
         :imagePaths="imagePaths" :canvasWidth="imgWidth" :isBulkUpload="isBulkUpload" :canvasHeight="imgHeight"
         @rectangleAdded="onRectangleAdded" @rectangleRemoved="onRectangleRemoved" />
     </div>
@@ -43,18 +45,6 @@ export default {
       isBulkUpload: false,
       isBulkContainerOpen: false
     };
-  },
-  computed: {
-    groupedImages() {
-      const groups = {};
-      this.images.forEach((image) => {
-        if (!groups[image.index]) {
-          groups[image.index] = [];
-        }
-        groups[image.index].push(image);
-      });
-      return Object.values(groups);
-    }
   },
   created() {
     this.InitBulkUploadStatus();
@@ -135,17 +125,21 @@ export default {
 
 .toggle-button {
   position: fixed;
-  top: 80px;
-  left: 10px;
-  padding: 8px 16px;
+  width: 20px;
+  top: 100px;
+  padding: 15px 15px;
   background-color: #333333;
   color: #ffffff;
   border: none;
-  border-radius: 4px;
-  font-size: 14px;
+  border-top-right-radius: 15px;
+  border-bottom-right-radius: 15px;
+  font-size: 20px;
   font-weight: 500;
   cursor: pointer;
   transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
   z-index: 999;
 }
@@ -156,10 +150,13 @@ export default {
   transform: translateY(-1px);
 }
 
+.button-text {
+  margin-right: 2px;
+}
+
 .left-bulkBar {
   width: 20%;
   height: calc(100% - 48px);
-  /* 调整高度计算方式 */
   position: fixed;
   left: -20%;
   background-color: #1a1a1a;
@@ -180,6 +177,7 @@ export default {
   border: none;
   color: #ffffff;
   font-size: 1.2rem;
+  font-weight: 500;
   cursor: pointer;
   z-index: 1001;
 }

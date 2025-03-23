@@ -90,7 +90,7 @@
     </div>
     <div class="right" :style="{ width: `calc(100% - ${computedWidth})`, height: computedHeight }">
       <SideBar ref="sideBar" :images="images" :imagePaths="imagePaths" :imageSrc="imageSrc" :imageChoice="imageChoice"
-        :currentImageIndex="currentImageIndex" @rectangleRemoved="handleRectangleRemoved"
+        :currentImageIndex="currentImageIndex" :isBulkUpload="isBulkUpload" @rectangleRemoved="handleRectangleRemoved"
         @imageIndexChanged="handleImageIndexChanged" @setGenerateStatus="setGenerateStatus" />
     </div>
   </div>

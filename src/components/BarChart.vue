@@ -5,13 +5,9 @@
       <!-- <h3>统计信息</h3> -->
       <div class="button-group">
         <button v-for="(button, index) in statisticButtons" :key="index"
-          :class="{ active: currentStatistics === button.type }" @click="showStatistics(button.type)"
-          @mouseenter="showTooltip(button.label, $event)" @mouseleave="hideTooltip" @mousemove="moveTooltip($event)">
+          :class="{ active: currentStatistics === button.type }" @click="showStatistics(button.type)">
           {{ button.label }}
         </button>
-        <div v-if="isTooltipVisible" class="tooltip" :style="{ left: tooltipX + 'px', top: tooltipY + 'px' }">
-          {{ tooltipContent }}
-        </div>
       </div>
       <div class="table-container">
         <table>
@@ -29,9 +25,12 @@
             <template v-if="currentStatistics === 'diseaseTotal' || currentStatistics === 'diseasePercentage'">
               <tr v-for="(item, index) in seriesNames" :key="index">
                 <td>{{ item }}</td>
-                <td v-if="currentStatistics === 'diseaseTotal'">{{seriesData[index] ? seriesData[index].reduce((sum,
-                  val) => sum + val, 0) : 0}}</td>
+                <td v-if="currentStatistics === 'diseaseTotal'">{{seriesData[index] ? seriesData[index].reduce((sum, val) => sum + val, 0) : 0}}</td>
                 <td v-if="currentStatistics === 'diseasePercentage'">{{ getDiseasePercentage(index) }}</td>
+              </tr>
+              <tr class="total-row">
+                <td>总患病数</td>
+                <td :colspan="currentStatistics === 'diseaseTotal' ? 1 : 1">{{ getTotalCount() }}</td>
               </tr>
             </template>
             <template v-if="currentStatistics === 'ageGroupTotal'">
@@ -39,11 +38,11 @@
                 <td>{{ ageGroup }}</td>
                 <td>{{ getAgeGroupTotal(index) }}</td>
               </tr>
+              <tr class="total-row">
+                <td>总患病数</td>
+                <td>{{ getTotalCount() }}</td>
+              </tr>
             </template>
-            <tr v-if="currentStatistics === 'totalCount'">
-              <td>所有疾病总患病数</td>
-              <td>{{ getTotalCount() }}</td>
-            </tr>
           </tbody>
         </table>
       </div>
@@ -108,32 +107,32 @@ export default {
       type: Array,
       default: () => [
         [
-          { offset: 0, color: "rgba(91, 142, 254, 0.8)" },
-          { offset: 1, color: "rgba(71, 122, 254, 0.1)" },
+          { offset: 0, color: '#425f81'},
+          { offset: 1, color: '#425f81' },
         ],
         [
-          { offset: 0, color: "rgba(209, 215, 197, 0.8)" },
-          { offset: 1, color: "rgba(189, 195, 177, 0.1)" },
+          { offset: 0, color: "#3fc1c9" },
+          { offset: 1, color: "#3fc1c9" },
         ],
         [
-          { offset: 0, color: "rgba(151, 122, 192, 0.8)" },
-          { offset: 1, color: "rgba(131, 102, 172, 0.1)" },
+          { offset: 0, color: "#fce38a" },
+          { offset: 1, color: "#fce38a" },
         ],
         [
-          { offset: 0, color: "rgba(77, 185, 69, 0.8)" },
-          { offset: 1, color: "rgba(77, 165, 69, 0.1)" },
+          { offset: 0, color: "#fc5185" },
+          { offset: 1, color: "#fc5185" },
         ],
         [
-          { offset: 0, color: "rgba(239, 186, 129, 0.8)" },
-          { offset: 1, color: "rgba(219, 166, 109, 0.1)" },
+          { offset: 0, color: "#9896f1" },
+          { offset: 1, color: "#9896f1" },
         ],
         [
-          { offset: 0, color: "rgba(189, 85, 251, 0.8)" },
-          { offset: 1, color: "rgba(169, 65, 231, 0.1)" },
+          { offset: 0, color: "#ffaaa5" },
+          { offset: 1, color: "#ffaaa5" },
         ],
         [
-          { offset: 0, color: "rgba(155, 187, 211, 0.8)" },
-          { offset: 1, color: "rgba(135, 167, 191, 0.1)" },
+          { offset: 0, color: "#e84545" },
+          { offset: 1, color: "#e84545" },
         ],
       ],
     },
@@ -153,13 +152,8 @@ export default {
       statisticButtons: [
         { type: 'diseaseTotal', label: '各疾病总计' },
         { type: 'ageGroupTotal', label: '年龄段总患病数' },
-        { type: 'totalCount', label: '总患病数' },
         { type: 'diseasePercentage', label: '占比' }
       ],
-      isTooltipVisible: false,
-      tooltipContent: '',
-      tooltipX: 0,
-      tooltipY: 0
     };
   },
   mounted() {
@@ -195,7 +189,7 @@ export default {
         data: this.seriesNames,
         bottom: "10px",
         textStyle: {
-          color: "rgb(38, 173, 187)",
+          color: "#333333",
         },
       },
       xAxis: {
@@ -258,18 +252,6 @@ export default {
     showStatistics(type) {
       this.currentStatistics = type;
     },
-    showTooltip(content, event) {
-      this.isTooltipVisible = true;
-      this.tooltipContent = content;
-      this.moveTooltip(event);
-    },
-    hideTooltip() {
-      this.isTooltipVisible = false;
-    },
-    moveTooltip(event) {
-      this.tooltipX = event.pageX + 10;
-      this.tooltipY = event.pageY + 10;
-    }
   },
 };
 </script>
@@ -289,7 +271,7 @@ export default {
 
 #statistics {
   width: 20%;
-  color: rgb(38, 173, 187);
+  color: #333333;
 }
 
 .button-group {
@@ -297,7 +279,7 @@ export default {
   display: flex;
   gap: 10px;
   justify-content: center;
-  margin-top:20px;
+  margin-top: 20px;
   margin-bottom: 10px;
 }
 
@@ -312,50 +294,77 @@ export default {
 }
 
 .button-group button.active {
-  background-color: #0056b3;
+  background-color: #e4a229;
   color: white;
 }
 
-.tooltip {
-  position: absolute;
-  background-color: rgba(255, 255, 255);
-  border: 1px solid #ccc;
-  color:black;
-  border-radius: 4px;
-  font-size:12px;
-  padding: 5px;
-  z-index: 100;
-  pointer-events: none;
-}
-
 .table-container {
-  height: calc(100% - 20px);
   width: 100%;
   overflow-y: auto;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  min-height: 120px;
+  max-height: 400px;
 }
 
 table {
   border-collapse: collapse;
   table-layout: fixed;
+  width: 100%;
+  background: white;
+  font-size: 0.9em;
+}
+
+table th {
+  background: linear-gradient(145deg, #f8f9fa 0%, #e9ecef 100%);
+  color: #2c3e50;
+  font-weight: 600;
+  padding: 6px 8px;
+  position: sticky;
+  top: 0;
+  font-size: 12px;
+  line-height: 1.2;
+}
+
+table td {
+  color: #4a4a4a;
+  padding: 4px 8px;
+  transition: background 0.2s;
+  font-size: 11px;
+  line-height: 1.3;
+}
+
+table tr {
+  height: 28px;
+}
+
+table tr:nth-child(even) {
+  background-color: #f8f9fa;
+}
+
+table tr:hover td {
+  background-color: #f1f5f9;
+}
+
+table th:first-child {
+  border-radius: 8px 0 0 0;
+}
+
+table th:last-child {
+  border-radius: 0 8px 0 0;
 }
 
 table th,
 table td {
-  border: 1px solid #ccc;
-  padding: 2px 4px;
-  text-align: center;
-  white-space: nowrap;
-  font-size: 13px;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  border: 1px solid #e9ecef;
 }
 
-table th {
-  width: auto;
+.total-row {
+  background-color: #e9f5ff !important;
+  font-weight: 600;
 }
 
-.table-container table {
-  width: 90%;
-  margin: 0 auto;
+.total-row td {
+  border-top: 2px solid #3fc1c9 !important;
 }
 </style>
