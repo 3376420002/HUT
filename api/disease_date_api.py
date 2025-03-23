@@ -80,7 +80,7 @@ async def disease_dirtribution(db: Session = Depends(get_db)) -> dict:
             "message": "成功获取数据",
             "data": data
         }
-        # logging.info(response)
+        logging.info(response)
     except Exception as e:
         response = {
             "code": 0,
@@ -91,7 +91,7 @@ async def disease_dirtribution(db: Session = Depends(get_db)) -> dict:
     return response
 
 
-@router.post('/getDiseaseDate')
+@router.post('/getDiseaseConditionByAge')
 async def disease_date(request: DiseaseDateAge, db: Session = Depends(get_db)) -> dict:
     # payload = decode_jwt_token(request.token)
     # if not payload:
@@ -152,13 +152,13 @@ async def disease_date(request: DiseaseDateAge, db: Session = Depends(get_db)) -
                 keys[5]: row[6],
             }
             data.append(entry)
-        print(data)
+        # print(data)
         response = {
             "code": 1,
             "message": "成功获取数据",
             "data": data
         }
-        logging.info(response)
+        # logging.info(response)
     except Exception as e:
         response = {
             "code": 0,

@@ -21,7 +21,7 @@ class Settings(BaseSettings):
     MAIL_PASSWORD: str = "hycypovjkruqcihb"
 
     # ai large model config
-    AI_MODEL_URL: str = "192.168.137.16:5000"
+    AI_MODEL_URL: str = "http://192.168.137.16:5000"
 
     # jwt config
     JWT_SECRET_KEY: str = "huoxiaya666"

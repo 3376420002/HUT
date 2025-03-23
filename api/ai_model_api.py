@@ -23,65 +23,49 @@ async def predict(request: list[DiseaseDate]) -> dict:
     logging.info(url)
     data = []
     for i in request:
-        base64_image = i["path"]
-        # request = requests.post(url,json = base64_image)
-        # if request.status_code == 200:
-        if 1 == 1:
-            # 解析 JSON 数据
-            message = {
-        "main_classification": {
-            "probabilities": {
-                "其他疾病": 0.123,
-                "糖尿病性视网膜病变": 0.456,
-                "病理性近视": 0.234,
-                "白内障": 0.345,
-                "老年性黄斑部病变": 0.567,
-                "青光眼": 0.678,
-                "高血压视网膜病变": 0.789,
-                "正常": 0.390
-            }
-        },
-        "sub_classification": {
-            "probabilities": {
-                "正常": 0.123,
-                "轻度": 0.234,
-                "中度": 0.345,
-                "重度": 0.456,
-                "增值性病变": 0.567
-            }
-        },
-        "vessel_segmentation": {
-            "mask": "base64编码的分割掩码图像"
-        },
-        "enhanced_image":"base64编码的增强图像"
-    }
+        # print(i)
+        # print(type(i))
+        # print(i.path)
+        base64_image = {
+            "image": i.path,
+        }
+        # print(base64_image)
+        try:
+            contents = requests.post(url, json=base64_image)
+            print(contents.status_code)
+        except Exception as e:
+            logging.error(e)
+        if contents:
+            content = contents.json()
+            logging.info(content)
+            print(content)
             # tag = -1
             # tag_name = ""
             # for key, value in message["main_classification"]["probabilities"].items():
             #     if value > tag:
             #         tag = value
             #         tag_name = key
-            merged_probabilities = message["main_classification"]["probabilities"]
-            if "糖尿病性视网膜病变" in message["main_classification"]["probabilities"] and message["main_classification"]["probabilities"]["糖尿病性视网膜病变"] > 0.5:
-                tag_tng = message["main_classification"]["probabilities"].get("糖尿病性视网膜病变")
-                del message["main_classification"]["probabilities"]["糖尿病性视网膜病变"]
+            merged_probabilities = content["main_classification"]["probabilities"]
+            if "糖尿病性视网膜病变" in content["main_classification"]["probabilities"] and content["main_classification"]["probabilities"]["糖尿病性视网膜病变"] > 0.5:
+                tag_tng = content["main_classification"]["probabilities"].get("糖尿病性视网膜病变")
+                del content["main_classification"]["probabilities"]["糖尿病性视网膜病变"]
                 sum = 0
-                for key2, value2 in message["sub_classification"]["probabilities"].items():
+                for key2, value2 in content["sub_classification"]["probabilities"].items():
                     sum += value2
-                for key2, value2 in message["sub_classification"]["probabilities"].items():
-                    message["sub_classification"]["probabilities"][key2] = round((value2 / sum) * tag_tng, 3)
+                for key2, value2 in content["sub_classification"]["probabilities"].items():
+                    content["sub_classification"]["probabilities"][key2] = round((value2 / sum) * tag_tng, 3)
 
-                merged_probabilities =message["main_classification"]["probabilities"] | message["sub_classification"]["probabilities"]
+                merged_probabilities =content["main_classification"]["probabilities"] | content["sub_classification"]["probabilities"]
 
             sorted_probabilities = dict(sorted(merged_probabilities.items(), key=lambda item: item[1], reverse=True))
             probabilities = [{"name": name, "probability": probability} for name, probability in sorted_probabilities.items()]
 
             element = {
-                "index": i["index"],
-                "name": i["name"],
-                "path": message["vessel_segmentation"]["mask"],
+                "index": i.index,
+                "name": i.name,
+                "path": content["vessel_segmentation"]["probability_map"],
                 "probabilities": probabilities,
-                "enhanced_image": message["enhanced_image"]
+                "enhanced_image": content["enhanced_image"]
             }
             data.append(element)
 
@@ -104,9 +88,9 @@ async def predict(request: str) -> dict:
         }
     url = settings.AI_MODEL_URL + "/api/oct_segmentation"
     # request = requests.get(url)
-    message = {
-        "segmentation_result": "base64编码的分割掩码图像"
-    }
+    # message = {
+    #     "segmentation_result": "base64编码的分割掩码图像"
+    # }
     request_json = {
         "image": "base64编码的OCT图像"
     }
@@ -116,7 +100,7 @@ async def predict(request: str) -> dict:
         response = {
             "code": 1,
             "message": "success",
-            "data": message
+            "data": data["segmentation_result"]
         }
         return response
 

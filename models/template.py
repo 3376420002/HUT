@@ -33,5 +33,5 @@ class DiseaseDate(BaseModel):
     index: int
     name: str
     path: str
-    probability: list[dict]
+    probabilities: list[dict]
 
