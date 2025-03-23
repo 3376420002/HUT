@@ -11,15 +11,15 @@ from sqlalchemy.orm import Session
 router = APIRouter()
 
 
-@router.post('/diseaseDates/getPaientsNum')
-async def disease_date(request: TokenRequest,db: Session = Depends(get_db)) -> dict:
-    payload = decode_jwt_token(request.token)
-    if not payload:
-        return {
-            "code": 0,
-            "message": "token验证失败",
-            "data": ""
-        }
+@router.get('/getPatientsNum')
+async def disease_date(db: Session = Depends(get_db)) -> dict:
+    # payload = decode_jwt_token(request.token)
+    # if not payload:
+    #     return {
+    #         "code": 0,
+    #         "message": "token验证失败",
+    #         "data": ""
+    #     }
     try:
         result = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
         mouth_data = db.query(Paients.time).all()
@@ -27,7 +27,6 @@ async def disease_date(request: TokenRequest,db: Session = Depends(get_db)) -> d
             if data[0]:
                 # mouth_time = data[0].sqlit(".")[1]
                 mouth_time = data[0]
-
                 result[int(mouth_time.split(".")[1])-1] += 1
 
         response = {
@@ -35,32 +34,32 @@ async def disease_date(request: TokenRequest,db: Session = Depends(get_db)) -> d
             "message": "成功获取数据",
             "data": result
         }
-        logging.info(response)
+        # logging.info(response)
     except Exception as e:
         response = {
             "code": 0,
             "message": "获取数据失败",
             "data": str(e)
         }
-        logging.error("Error:获取月份患病人数失败",response)
+        # logging.error("Error:获取月份患病人数失败",response)
     return response
 
 
-@router.post('/diseaseDates/getDiseasesDistribution')
-async def disease_dirtribution(request: TokenRequest, db: Session = Depends(get_db)) -> dict:
-    payload = decode_jwt_token(request.token)
-    if not payload:
-        return {
-            "code": 0,
-            "message": "token验证失败",
-            "data": ""
-        }
+@router.get('/getDiseasesDistribution')
+async def disease_dirtribution(db: Session = Depends(get_db)) -> dict:
+    # payload = decode_jwt_token(request.token)
+    # if not payload:
+    #     return {
+    #         "code": 0,
+    #         "message": "token验证失败",
+    #         "data": ""
+    #     }
     try:
         result = [0, 0, 0, 0, 0, 0, 0, 0, 0]
         outcomes = db.query(Paients.outCome).all()
         for outcome in outcomes:
             if outcome[0]:
-                print(outcome[0])
+                # print(outcome[0])
                 if outcome[0] >= 10:
                     result[1] += 1
                 else:
@@ -81,26 +80,26 @@ async def disease_dirtribution(request: TokenRequest, db: Session = Depends(get_
             "message": "成功获取数据",
             "data": data
         }
-        logging.info(response)
+        # logging.info(response)
     except Exception as e:
         response = {
             "code": 0,
             "message": "获取数据失败",
             "data": str(e)
         }
-        logging.error("Error:获取疾病分布失败", response)
+        # logging.error("Error:获取疾病分布失败", response)
     return response
 
 
-@router.post('/diseaseDates/getDiseaseDate')
+@router.post('/getDiseaseDate')
 async def disease_date(request: DiseaseDateAge, db: Session = Depends(get_db)) -> dict:
-    payload = decode_jwt_token(request.token)
-    if not payload:
-        return {
-            "code": 0,
-            "message": "token验证失败",
-            "data": ""
-        }
+    # payload = decode_jwt_token(request.token)
+    # if not payload:
+    #     return {
+    #         "code": 0,
+    #         "message": "token验证失败",
+    #         "data": ""
+    #     }
     try:
         result = [[0 for _ in range(9)] for _ in range(7)]
         # print(result)
@@ -170,7 +169,7 @@ async def disease_date(request: DiseaseDateAge, db: Session = Depends(get_db)) -
     return response
 
 
-@router.post('/diseaseDates/loginByAccount')
+@router.post('/loginByAccount')
 async def get_token(request: LoginRequest, db: Session = Depends(get_db)) -> dict:
     # 这里可以根据账号密码进行登录验证，并返回token
     # 这里暂时返回一个测试token

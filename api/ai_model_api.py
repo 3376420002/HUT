@@ -3,7 +3,7 @@ import requests
 
 from core.config import settings
 from fastapi import APIRouter
-from models.template import TokenRequest
+from models.template import TokenRequest, DiseaseDate
 from services.jwt_depend import decode_jwt_token
 
 
@@ -11,7 +11,7 @@ router = APIRouter()
 
 
 @router.post("/aibo")
-async def predict(request: list) -> dict:
+async def predict(request: list[DiseaseDate]) -> dict:
     # payload = decode_jwt_token(request.token)
     # if not payload:
     #     return {
@@ -20,6 +20,7 @@ async def predict(request: list) -> dict:
     #         "data": ""
     #     }
     url = settings.AI_MODEL_URL+"/api/fundus_analysis"
+    logging.info(url)
     data = []
     for i in request:
         base64_image = i["path"]
@@ -51,7 +52,8 @@ async def predict(request: list) -> dict:
         },
         "vessel_segmentation": {
             "mask": "base64编码的分割掩码图像"
-        }
+        },
+        "enhanced_image":"base64编码的增强图像"
     }
             # tag = -1
             # tag_name = ""
@@ -78,7 +80,8 @@ async def predict(request: list) -> dict:
                 "index": i["index"],
                 "name": i["name"],
                 "path": message["vessel_segmentation"]["mask"],
-                "probabilities": probabilities
+                "probabilities": probabilities,
+                "enhanced_image": message["enhanced_image"]
             }
             data.append(element)
 
@@ -91,7 +94,7 @@ async def predict(request: list) -> dict:
 
 
 @router.post("/aioct")
-async def predict(request: list) -> dict:
+async def predict(request: str) -> dict:
     payload = decode_jwt_token(request.token)
     if not payload:
         return {
