@@ -58,7 +58,7 @@
       </div>
     </div>
     <div v-if="toolChoose === 2" class="ai-suggest" :class="{ 'exAI-suggest': isBulkUpload }">
-      <StatusBar :progresses="images[currentImageIndex].probabilities"></StatusBar>
+      <StatusBar :progresses="imageResults[currentImageIndex].probabilities"></StatusBar>
     </div>
     <div v-if="!isBulkUpload" class="report-container">
       <hr>
@@ -114,6 +114,10 @@ export default {
     imageSrc: {
       type: String,
       default: ""
+    },
+    imageResults: {
+      type: Array,
+      default: () => []
     },
     imageChoice: {
       type: Number,
@@ -216,7 +220,11 @@ export default {
           const params = {
             images: this.selectedImages,
             imageChoice: this.imageChoice,
-            inputs: this.inputElements
+            inputs: this.inputElements,
+            patientName: this.patientName,
+            patientAge: this.patientAge,
+            patientSex: this.patientSex,
+            trackingNumber:this.trackingNumber
           }
           this.$router.push({
             path: '/case',

@@ -1,8 +1,7 @@
 <template>
   <div id="Home">
     <div class="header">
-      <span class="logo-text">这里是logo</span>
-      <!-- <img src="@/assets/generalIcons/visitor.png" alt="Logo" class="logo"> -->
+      <img class="logo-icon" src="@/assets/logo.png">
       <img src="@/assets/generalIcons/visitor.png" alt="User" class="user-icon" @click="goToPersonalInfo">
     </div>
     <div class="toolbar">
@@ -58,8 +57,8 @@ export default {
   justify-content: space-between;
   align-items: center;
   padding: 15px 20px;
-  background-color: #7ee6c2;
-  color: #f9f9f9;
+  background-image: linear-gradient(to right, #ddf1ee, #7ee6c2);
+  color: #ffffff;
   border-top-left-radius: 10px;
   border-top-right-radius: 10px;
 }
@@ -70,8 +69,9 @@ export default {
   margin-right: 10px;
 }
 
-.logo {
+.logo-icon {
   height: 40px;
+  cursor: pointer;
 }
 
 .user-icon {
@@ -81,7 +81,7 @@ export default {
 
 .toolbar {
   height: 35px;
-  background-color: #4c6f68;
+  background-color: #48af9b;
   display: flex;
   padding: 4px 20px 0 20px;
   /* position: relative; */
@@ -105,7 +105,7 @@ export default {
 
 .toolbar li a {
   text-decoration: none;
-  color: #CCCCCC;
+  color: #f4f4f4;
   font-size: 14px;
   font-weight: 500;
   transition: color 0.001s ease, background-color 0.001s ease;
@@ -116,10 +116,10 @@ export default {
 }
 
 .toolbar li.active a {
-  color: #4c6f68;
+  color: #48af9b;
   font-weight: bold;
   background-color: #fff;
-  border: 1px solid #4c6f68;
+  border: 1px solid #48af9b;
   border-bottom: none;
   z-index: 3;
 }
@@ -131,7 +131,7 @@ export default {
   bottom: 0;
   width: 20px;
   height: 8px;
-  background-color: #4c6f68;
+  background-color: #48af9b;
   z-index: 3;
 }
 

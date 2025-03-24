@@ -107,7 +107,7 @@ export default {
       type: Array,
       default: () => [
         [
-          { offset: 0, color: '#425f81'},
+          { offset: 0, color: '#425f81' },
           { offset: 1, color: '#425f81' },
         ],
         [
@@ -157,61 +157,7 @@ export default {
     };
   },
   mounted() {
-    // 初始化 echarts 实例
-    this.myChart = echarts.init(document.getElementById("BarChart"));
-    // 动态生成 series 配置
-    const series = this.seriesNames.map((name, index) => {
-      const colorStops =
-        this.gradientColorList[index % this.gradientColorList.length];
-      return {
-        name,
-        type: "bar",
-        data: this.seriesData[index] || [],
-        itemStyle: {
-          color: {
-            type: "linear",
-            ...this.gradientDirection,
-            colorStops,
-          },
-        },
-      };
-    });
-    // 设置图表配置项
-    const option = {
-      title: {
-        text: this.titleText,
-        textStyle: {
-          color: "rgb(145, 158, 182)",
-        },
-      },
-      tooltip: {},
-      legend: {
-        data: this.seriesNames,
-        bottom: "10px",
-        textStyle: {
-          color: "#333333",
-        },
-      },
-      xAxis: {
-        data: this.xAxisValues,
-        axisLabel: {
-          color: this.axisTextColor,
-        },
-      },
-      yAxis: {
-        axisLabel: {
-          color: this.axisTextColor,
-        },
-        splitLine: {
-          lineStyle: {
-            color: "rgb(41, 52, 98)",
-          },
-        },
-      },
-      series,
-    };
-    // 应用配置项到图表
-    this.myChart.setOption(option);
+    this.renderBarChart();
     // 监听窗口大小变化事件
     window.addEventListener("resize", this.handleResize);
   },
@@ -220,6 +166,62 @@ export default {
     window.removeEventListener("resize", this.handleResize);
   },
   methods: {
+    renderBarChart() {
+      this.myChart = echarts.init(document.getElementById("BarChart"));
+      // 动态生成 series 配置
+      const series = this.seriesNames.map((name, index) => {
+        const colorStops =
+          this.gradientColorList[index % this.gradientColorList.length];
+        return {
+          name,
+          type: "bar",
+          data: this.seriesData[index] || [],
+          itemStyle: {
+            color: {
+              type: "linear",
+              ...this.gradientDirection,
+              colorStops,
+            },
+          },
+        };
+      });
+      // 设置图表配置项
+      const option = {
+        title: {
+          text: this.titleText,
+          textStyle: {
+            color: "rgb(145, 158, 182)",
+          },
+        },
+        tooltip: {},
+        legend: {
+          data: this.seriesNames,
+          bottom: "10px",
+          textStyle: {
+            color: "#333333",
+          },
+        },
+        xAxis: {
+          data: this.xAxisValues,
+          axisLabel: {
+            color: this.axisTextColor,
+          },
+        },
+        yAxis: {
+          axisLabel: {
+            color: this.axisTextColor,
+          },
+          splitLine: {
+            lineStyle: {
+              color: "rgb(41, 52, 98)",
+            },
+          },
+        },
+        series,
+      };
+      // 应用配置项到图表
+      this.myChart.setOption(option);
+    },
     handleResize() {
       if (this.myChart) {
         // 窗口大小改变时，重新调整图表大小
@@ -253,6 +255,22 @@ export default {
       this.currentStatistics = type;
     },
   },
+  watch: {
+    seriesData: {
+      handler() {
+        this.renderBarChart();
+      },
+      deep: true,
+      immediate: false
+    },
+    seriesNames: {
+      handler() {
+        this.renderBarChart();
+      },
+      deep: true,
+      immediate: false
+    }
+  }
 };
 </script>
 
@@ -294,7 +312,7 @@ export default {
 }
 
 .button-group button.active {
-  background-color: #e4a229;
+  background-color: #4c6f68;
   color: white;
 }
 
@@ -360,11 +378,11 @@ table td {
 }
 
 .total-row {
-  background-color: #e9f5ff !important;
+  background-color: #ebfefa !important;
   font-weight: 600;
 }
 
 .total-row td {
-  border-top: 2px solid #3fc1c9 !important;
+  border-top: 2px solid #4c6f68 !important;
 }
 </style>

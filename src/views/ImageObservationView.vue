@@ -22,7 +22,9 @@
     <div class="right-canvas" :style="{ width: isBulkContainerOpen ? `calc(100% - 20%)` : '100%' }"
       :class="{ 'slide-right': isBulkContainerOpen }">
       <ImageRectangleDrawer :images="isBulkUpload ? images[selectedGroup] : images" :imageSrc="imageSrc"
-        :imagePaths="imagePaths" :canvasWidth="imgWidth" :isBulkUpload="isBulkUpload" :canvasHeight="imgHeight"
+        :imagePaths="imagePaths" :imageResults="isBulkUpload ? imageResults[selectedGroup] : imageResults"
+        :patientName="patientName" :patientAge="patientAge" :patientSex="patientSex" :trackingNumber="trackingNumber"
+        :canvasWidth="imgWidth" :isBulkUpload="isBulkUpload" :canvasHeight="imgHeight"
         @rectangleAdded="onRectangleAdded" @rectangleRemoved="onRectangleRemoved" />
     </div>
   </div>
@@ -39,16 +41,23 @@ export default {
       imgWidth: 0,
       imgHeight: 0,
       images: [],
+      imageResults: [],
       imageSrc: "",
       imagePaths: [],
       selectedGroup: 0,
       isBulkUpload: false,
-      isBulkContainerOpen: false
+      isBulkContainerOpen: false,
+      patientName: "",
+      patientAge: 0,
+      patientSex: "",
+      trackingNumber:""
     };
   },
   created() {
     this.InitBulkUploadStatus();
     this.InitImagePaths();
+    this.InitImageResults();
+    this.InitBasicInformation()
   },
   mounted() {
     // 在组件挂载时添加 resize 事件监听器
@@ -59,6 +68,20 @@ export default {
     window.removeEventListener('resize', this.handleWindowResize);
   },
   methods: {
+    InitBasicInformation() {
+      if (this.$route.query && this.$route.query.patientName) {
+        this.patientName = this.$route.query.patientName;
+      }
+      if (this.$route.query && this.$route.query.patientAge) {
+        this.patientAge = this.$route.query.patientAge;
+      }
+      if (this.$route.query && this.$route.query.patientSex) {
+        this.patientSex = this.$route.query.patientSex;
+      }
+      if (this.$route.query && this.$route.query.trackingNumber) {
+        this.trackingNumber = this.$route.query.trackingNumber;
+      }
+    },
     InitImagePaths() {
       if (this.$route.query && this.$route.query.imagePaths) {
         this.imagePaths = this.$route.query.imagePaths;
@@ -78,6 +101,12 @@ export default {
       }
       console.log(this.isBulkUpload);
       this.handleWindowResize()
+    },
+    InitImageResults() {
+      if (this.$route.query && this.$route.query.imageResults) {
+        this.imageResults = this.$route.query.imageResults;
+      }
+      console.log(this.imageResults);
     },
     handleExchangeImages(index) {
       this.selectedGroup = index;
@@ -224,8 +253,8 @@ export default {
 }
 
 .thumbnail-image {
-  width: 40%;
-  height: 40%;
+  width: 20%;
+  height: 20%;
   /* object-fit: cover; */
   border-radius: 6px;
   border: 2px solid transparent;

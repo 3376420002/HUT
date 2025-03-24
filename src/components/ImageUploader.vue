@@ -1,7 +1,8 @@
 <template>
   <div :class="{ 'is-disabled': disabled }">
-    <div class="upload-container" @dragover.prevent="handleDragOver" @dragleave="handleDragLeave"
-      @drop.prevent="handleDrop" :style="{ borderColor: dragActive ? '#BAE67E' : '#dcdfe6' }">
+    <div class="upload-container" :class="{ 'finish-upload': hasFinish }" @dragover.prevent="handleDragOver"
+      @dragleave="handleDragLeave" @drop.prevent="handleDrop"
+      :style="{ borderColor: dragActive ? '#BAE67E' : '#dcdfe6' }">
       <!-- 隐藏原生文件输入控件 -->
       <img v-if="previewUrl" :src="previewUrl" class="preview-image">
       <!-- 浮动操作图标 -->
@@ -36,7 +37,8 @@ export default {
     return {
       dragActive: false,  // 拖拽激活状态
       previewUrl: null,    // 存储图片预览的DataURL（Base64）
-      isDragging: false // 正在拖拽
+      isDragging: false, // 正在拖拽
+      hasFinish: false
     };
   },
   watch: {
@@ -47,9 +49,9 @@ export default {
       deep: true
     }
   },
-  created(){
-    if(this.imageFile)
-    this.previewUrl=this.imageFile;
+  created() {
+    if (this.imageFile)
+      this.previewUrl = this.imageFile;
   },
   methods: {
     triggerFileSelect() {
@@ -81,6 +83,7 @@ export default {
       const reader = new FileReader();
       reader.onload = (e) => {
         this.previewUrl = e.target.result;
+        this.hasFinish = true;
         // 向父组件传递文件对象
         this.$emit('file-uploaded', {
           file: file,
@@ -94,7 +97,6 @@ export default {
 </script>
 
 <style scoped>
-
 .upload-container {
   position: relative;
   width: 100%;
@@ -110,27 +112,33 @@ export default {
   transition: border-color 0.3s;
 }
 
+.finish-upload {
+  background-color: black;
+}
+
 .preview-image {
   width: 100%;
   height: 100%;
   object-fit: contain;
-  z-index: 1; /* 设置图片层级 */
+  z-index: 1;
+  /* 设置图片层级 */
 }
 
-.upload{
+.upload {
   position: absolute;
   width: 100%;
   height: 100%;
   display: flex;
   justify-content: center;
   align-items: center;
-  z-index: 2; /* 设置上传区域层级 */
+  z-index: 2;
+  /* 设置上传区域层级 */
 }
 
 .action-icon {
   position: absolute;
-  width:100%;
-  height:100%;
+  width: 100%;
+  height: 100%;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);

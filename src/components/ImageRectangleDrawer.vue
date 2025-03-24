@@ -5,6 +5,18 @@
     </button>
     <div class="left" ref="fullDiv" :class="{ 'fullscreen': isFullscreen }">
       <div id="button-container" ref="buttonContainer">
+        <button @click="toggleInitial" :class="{ 'active-button': isInitial }">
+          <img src="@/assets/buttonIcons/drawing.png">
+          原图
+        </button>
+        <button v-if="hasEnhanced[this.currentImageIndex]" @click="toggleStrong" :class="{ 'active-button': isStrong }">
+          <img src="@/assets/buttonIcons/drawing.png">
+          增强图
+        </button>
+        <button v-if="hasResults[this.currentImageIndex]" @click="toggleResult" :class="{ 'active-button': isResult }">
+          <img src="@/assets/buttonIcons/drawing.png">
+          {{ hasEnhanced[this.currentImageIndex] ? '分割图' : '分层图' }}
+        </button>
         <button @click="toggleDrawing" :class="{ 'active-button': isStartDrawRectButtonActive }">
           <img src="@/assets/buttonIcons/drawing.png">
           {{ drawButtonText }}
@@ -60,7 +72,7 @@
       <canvas ref="imageCanvas" :width="computedWidth" :height="computedHeight" style="border: none;"></canvas>
       <!-- 悬浮图例 -->
       <div class="legends-container"
-        v-if="(imageChoice == 1 && imageSrc.hasLegend) || (imageChoice == 2 && images[currentImageIndex].hasLegend) || (imageChoice == 3 && imagePaths[currentImageIndex].hasLegend)">
+        v-if="((imageChoice == 1 && imageSrc.hasLegend) || (imageChoice == 2 && images[currentImageIndex].hasLegend) || (imageChoice == 3 && imagePaths[currentImageIndex].hasLegend)) && this.isResult">
         <div v-if="imageChoice === 1">
           <div class="legends" v-for="(legend, index) of imageSrc.legends" :key="index">
             <span :style="{ backgroundColor: legend.color }">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
@@ -90,8 +102,10 @@
     </div>
     <div class="right" :style="{ width: `calc(100% - ${computedWidth})`, height: computedHeight }">
       <SideBar ref="sideBar" :images="images" :imagePaths="imagePaths" :imageSrc="imageSrc" :imageChoice="imageChoice"
-        :currentImageIndex="currentImageIndex" :isBulkUpload="isBulkUpload" @rectangleRemoved="handleRectangleRemoved"
-        @imageIndexChanged="handleImageIndexChanged" @setGenerateStatus="setGenerateStatus" />
+        :currentImageIndex="currentImageIndex" :imageResults="imageResults" :isBulkUpload="isBulkUpload"
+        :patientName="patientName" :patientAge="patientAge" :patientSex="patientSex" :trackingNumber="trackingNumber"
+        @rectangleRemoved="handleRectangleRemoved" @imageIndexChanged="handleImageIndexChanged"
+        @setGenerateStatus="setGenerateStatus" />
     </div>
   </div>
 </template>
@@ -115,6 +129,10 @@ export default {
     imageSrc: {
       type: String,
       default: ""
+    },
+    imageResults: {
+      type: Array,
+      default: () => []
     },
     canvasWidth: {
       type: [Number, String],
@@ -151,7 +169,23 @@ export default {
     isBulkUpload: {
       type: Boolean,
       default: false
-    }
+    },
+    patientName: {
+      type: String,
+      default: "测试患者"
+    },
+    patientSex: {
+      type: String,
+      default: "男"
+    },
+    patientAge: {
+      type: Number,
+      default: 0
+    },
+    trackingNumber: {
+      type: String,
+      default: "1111111111"
+    },
   },
   watch: {
     canvasWidth() {
@@ -167,7 +201,10 @@ export default {
     },
     imagePaths() {
       this.InitImg();
-    }
+    },
+    // imageResults() {
+    //   this.InitResults();
+    // }
   },
   data() {
     return {
@@ -195,6 +232,11 @@ export default {
       toggleBirdseyeText: "鸟瞰图",
       widthChanged: false,
       heightChanged: false,
+      hasEnhanced: [],//是否有结果图
+      hasResults: [],
+      isInitial: true,//是否显示原图
+      isStrong: false,//是否显示增强
+      isResult: false,//是否显示结果
       isDrawing: false,
       isDragging: false,
       isGenerate: true,
@@ -294,16 +336,44 @@ export default {
         this.imageChoice = 3;
       }
       this.currentImageIndex = 0;
+      this.hasEnhanced = [];
+      this.hasResults = [];
+      this.isInitial = true;
+      this.isStrong = false;
+      this.isResult = false;
+      this.InitResults();
       this.entryLoadImg();
       this.initRectangles();
+    },
+    InitResults() {
+      if (Array.isArray(this.imageResults) && this.imageResults.length > 0) {
+        for (let result of this.imageResults) {
+          if (result.enhanced_image && result.enhanced_image.length > 0) {
+            this.hasEnhanced.push(true);
+          }
+          if (result.path && result.path.length > 0) {
+            this.hasResults.push(true);
+          }
+        }
+      }
     },
     entryLoadImg() {
       if (this.imageChoice == 1) {
         this.loadImg(this.imageSrc);
       } else if (this.imageChoice == 2) {
-        this.loadImg(this.images[this.currentImageIndex].path)
+        if (this.isInitial)
+          this.loadImg(this.images[this.currentImageIndex].path);
+        else if (this.isStrong)
+          this.loadImg(this.imageResults[this.currentImageIndex].enhanced_image);
+        else if (this.isResult)
+          this.loadImg(this.imageResults[this.currentImageIndex].path);
       } else {
-        this.loadImg(this.imagePaths[this.currentImageIndex].path);
+        if (this.isInitial)
+          this.loadImg(this.imagePaths[this.currentImageIndex].path);
+        else if (this.isStrong)
+          this.loadImg(this.imageResults[this.currentImageIndex].enhanced_image);
+        else if (this.isResult)
+          this.loadImg(this.imageResults[this.currentImageIndex].path);
       }
     },
     //用于控制画布大小能够自适应屏幕变化(新加待定)
@@ -388,6 +458,24 @@ export default {
       this.rectangles = Array.from({ length: this.imageCount }, () => []);
       this.nextIndex = Array.from({ length: this.imageCount }, () => 1);
       this.currentRectIndex = Array.from({ length: this.imageCount }, () => -1);
+    },
+    toggleInitial() {
+      this.isInitial = true;
+      this.isStrong = false;
+      this.isResult = false;
+      this.entryLoadImg();
+    },
+    toggleStrong() {
+      this.isInitial = false;
+      this.isStrong = true;
+      this.isResult = false;
+      this.entryLoadImg();
+    },
+    toggleResult() {
+      this.isInitial = false;
+      this.isStrong = false;
+      this.isResult = true;
+      this.entryLoadImg();
     },
     toggleDrawing() {
       if (this.isDrawing) {
@@ -484,6 +572,9 @@ export default {
     // 新增 handleImageIndexChanged 方法，处理图片切换事件
     handleImageIndexChanged(index) {
       this.currentImageIndex = index;
+      this.isInitial = true;
+      this.isStrong = false;
+      this.isResult = false;
       this.entryLoadImg();
       // this.redrawCanvas();
     },
@@ -722,7 +813,6 @@ export default {
               this.scaleValue.style.display = "none";
             }, 1000);
           }
-
           if (
             newScaledWidth > this.canvas.width ||
             newScaledHeight > this.canvas.height
@@ -1266,14 +1356,14 @@ input[type="range"]::-moz-range-thumb {
 }
 
 .legends-container {
-  width: 20%;
+  width: 30%;
   height: 30%;
   padding: 20px;
   background-color: transparent;
   font-size: 12px;
   position: absolute;
   left: 0;
-  bottom: 0;
+  bottom: -50px;
   z-index: 11;
 }
 

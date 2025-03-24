@@ -8,7 +8,7 @@
     <div :class="['dialog', { open: isDialogOpen }]">
       <div class="dialog-header">
         <div class="title">
-          <h3>眼科智能小助手</h3>
+          <h4>眼科智能小助手</h4>
         </div>
         <button id="close-dialog" class="close-button" @click="closeDialog">
           &times;
@@ -33,7 +33,7 @@
           <input type="text" v-model="userInput" placeholder="输入你的消息" @keydown.enter="sendMessageByInput" />
           <button :disabled="!canSendMessage || isLoading || hasAnswerTyping" @click="sendMessageByInput">
             <span class="button-icon">
-              <span v-if="!(isLoading || hasAnswerTyping)" class="submit">&uarr;</span>
+              <span v-if="!(isLoading || hasAnswerTyping)" class="el-icon-top"></span>
               <span v-else class="spinner"></span>
             </span>
           </button>
@@ -44,6 +44,7 @@
 </template>
 
 <script>
+import axios from 'axios'
 export default {
   props: {
     shortcutButtons: {
@@ -99,7 +100,7 @@ export default {
           // 检查该函数名对应的函数是否存在
           if (typeof this.$parent[functionName] === 'function') {
             const result = await this.$parent[functionName]();
-            const processedAnswer=this.processAnswer(result);
+            const processedAnswer = this.processAnswer(result);
             this.setAnswer(processedAnswer);
           } else {
             this.setAnswer(`未在父组件中找到名为 ${functionName} 的函数不存在`);
@@ -110,6 +111,7 @@ export default {
       } catch (error) {
         console.error("获取答案出错:", error);
         // 显示错误信息
+        this.isLoading = false;
         this.conversationHistory.push({
           role: "error",
           content: "获取答案时出错",
@@ -149,6 +151,7 @@ export default {
           role: "error",
           content: "获取答案时出错",
         });
+        this.isLoading = false;
       } finally {
         this.hasAnswerTyping = false;
         const message = this.userInput.trim();
@@ -165,15 +168,21 @@ export default {
         currentPart: "",
       });
     },
-    //向后端发送数据并获取答案
-    getAnswer(userMessage) {
-      return new Promise((resolve) => {
-        setTimeout(() => {
-          // 这里简单返回用户输入的倒序作为示例答案
-          resolve("针对50岁男性患者晚期青光眼的情况，以下是针对性的诊断建议和治疗流程：\n\n### 1. 治疗建议\n- **眼内压控制**：在晚期青光眼患者中，眼内压的控制是防止进一步视神经损害的关键。可以考虑如下方式：\n  - **药物治疗**：根据患者的个体耐受性及以往用药记录，选择合适的降眼压药物组合。\n  - **激光治疗**：如需要可考虑进行处于相对安全的范围内的激光小梁成形术或激光周边虹膜切开术，以改善房水流出。\n  - **手术治疗**：对于需要手术干预的患者，可以考虑进行青光眼滤过手术（如小梁切除术）或管状阀植入手术。\n\n### 2. 检查计划\n- **眼压监测**：定期监测眼内压，评估治疗效果。\n- **视野检查**：使用电脑视野计定期进行视野检测，记录视野缺损的进展情况。\n- **视神经检查**：使用OCT（光学相干断层扫描）检查视网膜神经纤维层厚度，评估视神经的损伤程度。\n- **房角检查**：使用前房角镜检查房角的开放情况，如有必要进行房水动力学检查。\n\n### 3. 用药建议\n根据患者的具体情况，可以考虑以下几类降眼压药物：\n- **β-adrenergic拮抗剂**（如美托洛尔眼药水）\n- **前列腺素类**（如拉坦前列素眼药水）\n- **碳酸酐酶抑制剂**（如乙酰唑胺口服或磺酰胺眼药水）\n- **α2-adrenergic激动剂**（如布林佐胺眼药水）\n\n在实施药物治疗时，务必注意患者可能的副作用和合并症，同时对药物的相互作用进行评估。如果患者对某些药物有过敏或不良反应，需及时调整用药计划。\n\n### 总结\n鉴于患者已经处于青光眼的晚期阶段，治疗的重点在于降低眼内压，减缓视神经进一步损害的进展。通过综合的检查与个体化的用药计划，可以为患者提供最佳的管理方案。同时，患者的生活方式调整（如合理控制体重、避免剧烈运动等）也对病情有一定影响，建议进行相应的指导和提醒。");
-          console.log(userMessage)
-        }, 3000);
-      });
+    //向后端发送数据并获取原始答案
+    async getAnswer(userMessage) {
+      try {
+        // 发送 POST 请求
+        const response = await axios.post("http://192.168.137.141:8800/aiQuestion", {
+          question: userMessage
+        });
+        // 返回响应数据
+        console.log(response.data);
+        return response.data.data;
+      } catch (error) {
+        console.error('请求出错:', error);
+        // 可以根据需求返回默认值或者抛出错误
+        return null;
+      }
     },
     processAnswer(answer) {
       // 处理换行和加粗格式
@@ -217,12 +226,12 @@ export default {
 /* 悬浮按钮样式 */
 .toggle-button {
   position: fixed;
-  top: 55%;
+  top: 50%;
   transform: translateY(-50%);
   z-index: 1001;
   padding: 20px 10px;
   background-color: #7ee6c2;
-  color: #111111;
+  color: #474747;
   border: none;
   border-top-right-radius: 50px;
   border-bottom-right-radius: 50px;
@@ -250,12 +259,12 @@ export default {
 .dialog {
   position: absolute;
   left: -100%;
-  /* top: 5%;
-  bottom: 5%; */
   width: 100%;
   height: 100%;
-  background: linear-gradient(135deg, #e6f0f8 0%, #d9e8f2 100%);
+  background: #f0fffd;
   border-right: 1px solid #ccc;
+  border-top-right-radius: 15px;
+  border-bottom-right-radius: 15px;
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
   z-index: 1000;
   transition: left 0.3s ease;
@@ -265,15 +274,18 @@ export default {
   left: 0;
 }
 
-.title{
-  width:90%;
+.title {
+  width: 90%;
   text-align: center;
+  color: #4c6f68;
 }
 
 .dialog-header {
-  height:8;
+  height: 8;
   padding: 15px;
-  background-color: #c6e0f0;
+  background-color: #d4fdf7;
+  border-top-right-radius: 15px;
+  border-bottom-right-radius: 15px;
   border-bottom: 1px solid #b3d5e9;
   box-shadow: 0 2px 2px rgba(0, 0, 0, 0.1);
   display: flex;
@@ -286,7 +298,7 @@ export default {
   border: none;
   font-size: 24px;
   cursor: pointer;
-  color: #ffffff;
+  color: #e0e0e0;
 }
 
 .close-button:hover {
@@ -300,41 +312,42 @@ export default {
 }
 
 .input-section {
-  border-top: 1px solid #e0e8f1;
+  border-top: 1px solid #d2dae2;
 }
 
 .shortcut-buttons {
   width: 100%;
   height: 35px;
-  padding-bottom:3px;
+  padding-bottom: 3px;
   /* border-top:2px solid rgb(245, 249, 252); */
-  display:flex;
+  display: flex;
   align-items: center;
-  /* background-color: rgb(244, 244, 244); */
+  border-bottom: 1px solid #d2dae2;
 }
 
 .shortcut-buttons button {
   border: 0.5px solid rgb(190, 190, 190);
-  border-radius:10px;
-  padding-top:5px;
-  padding-bottom:5px;
-  margin-left:3px;
+  border-radius: 5px;
+  padding-top: 5px;
+  padding-bottom: 5px;
+  margin-left: 3px;
   cursor: pointer;
-  color:rgb(114, 114, 114);
+  color: rgb(114, 114, 114);
   background-color: rgb(255, 255, 255);
 }
 
 .shortcut-buttons button:hover {
-  color:black;
-  background-color: rgb(245, 245, 245);
+  color: #4c6f68;
+  background-color: rgb(255, 255, 255);
 }
 
 .user-input {
   /* width:100%; */
-  height:30%;
+  height: 30%;
   padding: 15px;
   display: flex;
   background-color: #f5f9fc;
+  border-bottom: 1px solid #d2dae2;
 }
 
 .user-input input {
@@ -362,7 +375,7 @@ export default {
 }
 
 .user-input button:not(:disabled) {
-  background-color: #007bff;
+  background-color: #4c6f68;
 }
 
 .button-icon {
@@ -373,7 +386,7 @@ export default {
   align-items: center;
 }
 
-.submit {
+.el-icon-top {
   transform: scaleX(1.3);
 }
 
@@ -404,8 +417,8 @@ export default {
   text-align: center;
   font-size: 12px;
   padding-left: 5px;
-  border-radius: 10px;
-  background-color: rgb(255, 255, 255);
+  border-radius: 5px;
+  background-color: #8ac9bc;
   /* 设置行高，让显示更美观，可根据需求调整 */
   line-height: 1;
 }
@@ -436,7 +449,7 @@ export default {
 
 /* 用户消息样式 */
 .user-message {
-  background-color: #e8f4fc;
+  background-color: #ddfaf4;
   border-radius: 8px;
   box-shadow: 0 2px 2px rgba(0, 0, 0, 0.05);
   font-family: 'Open Sans', sans-serif;

@@ -23,7 +23,7 @@ export default {
     progresses: {
       type: Array,
       default: () => [
-        { name: "轻度非增生性病变", probability: 1 },
+        { name: "轻度非增生性病变", probability: 0 },
         { name: "中度非增生性病变", probability: 0 },
         { name: "重度非增生性病变", probability: 0 },
         { name: "增生性病变", probability: 0 },
@@ -60,6 +60,7 @@ export default {
         // 当 progresses 变化时，重置进度条状态
         this.resetProgress();
         this.Init();
+        console.log(this.progresses);
       },
       deep: true // 深度监听 progresses 数组的变化
     }
@@ -144,10 +145,10 @@ export default {
 .progress-bar {
   height: 15px;
   background: linear-gradient(90deg,
-      #4CAF50 0%,
-      #81C784 30%,
-      #A5D6A7 60%,
-      #C8E6C9 100%);
+      #aedeaf 0%,
+      #95d798 30%,
+      #81C784 60%,
+      #4CAF50 100%);
   border-radius: 10px;
   width: 100%;
   position: relative;

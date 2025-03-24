@@ -181,16 +181,16 @@ export default {
 }
 
 .upPart {
-  background-color: var(--light-bg);
-  border-left: 4px solid var(--primary-color);
+  background-color: #f8f9fa;
+  border-left: 4px solid#3a86ff;
   border-radius: 10px;
   border: 1px solid #65676c;
   padding: 0 20px 20px 20px;
 }
 
 .downPart {
-  background-color: var(--light-bg);
-  border-left: 4px solid var(--accent-color);
+  background-color: #f8f9fa;
+  border-left: 4px solid#219ebc;
   border-radius: 10px;
   border: 1px solid #65676c;
   padding: 0 20px 20px 20px;
@@ -200,7 +200,7 @@ export default {
   flex: 3;
   display: flex;
   height: 50%;
-  justify-content: right; 
+  justify-content: right;
   background-color: #ffffff;
   border-radius: 10px;
 }
@@ -268,8 +268,8 @@ export default {
 }
 
 .el-input :deep(.el-input__inner):focus {
-  border-color: var(--primary-color);
-  box-shadow: 0 0 0 2px rgba(58, 134, 255, 0.2);
+  border-color: #286d25;
+  box-shadow: 0 0 0 2px rgba(1, 124, 77, 0.689);
 }
 
 /* 按钮样式 */
@@ -291,17 +291,8 @@ export default {
   color: #000000;
 }
 
-/* 禁用状态样式 */
 .el-input.is-disabled :deep(.el-input__inner) {
   background-color: #e6e6e6;
   color: #67606F;
 }
-
-/* :root {
-  --primary-color: #3a86ff;
-  --secondary-color: #8ecae6;
-  --accent-color: #219ebc;
-  --light-bg: #f8f9fa;
-  --card-bg: #ffffff;
-} */
 </style>

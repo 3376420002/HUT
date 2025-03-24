@@ -114,18 +114,34 @@ export default {
       }
     },
   },
+  watch: {
+    chartData: {
+      handler() {
+        this.renderPieChart();
+      },
+      deep: true,
+      immediate: false
+    },
+    names: {
+      handler() {
+        this.renderPieChart();
+      },
+      deep: true,
+      immediate: false
+    }
+  },
 };
 </script>
 
 <style scoped>
 #pieChart {
-  background-color: rgb(250,250,250);
+  background-color: rgb(250, 250, 250);
   width: 80%;
   height: calc(100% - 35px);
 }
 
 #PieChart {
-  background-color: rgb(250,250,250);
+  background-color: rgb(250, 250, 250);
   width: 80%;
   margin: 20px;
 }

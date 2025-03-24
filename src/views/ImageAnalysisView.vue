@@ -15,7 +15,7 @@
                 </div>
                 <ImageUploader v-show="!imageKind[index]" :isUpload="true"
                   @file-uploaded="(payload) => imageUpload(payload, index)" />
-                <ImageUploader v-if="hasAnalysis && imageKind[index]" :imageFile="enforceImageResults[index].path" />
+                <ImageUploader v-if="hasAnalysis && imageKind[index]" :imageFile="enforceImageResults[index]" />
               </div>
             </div>
           </div>
@@ -24,14 +24,13 @@
             <div class="title">OCT图像</div>
             <div class="imageContainer">
               <div v-for="index in [3, 4]" :key="index" class="images single-image">
-                <div v-if="hasAnalysis && hasSingleUpload[index]" class="imageSelector">
+                <!-- <div v-if="hasAnalysis && hasSingleUpload[index]" class="imageSelector">
                   <button @click="ImageUploaderButton(index)" :class="{ active: imageKind[index] }">
                     <span>{{ imageKind[index] ? "显示原图" : "显示增强" }}</span>
                   </button>
-                </div>
-                <ImageUploader v-show="!imageKind[index]" :isUpload="true"
-                  @file-uploaded="(payload) => imageUpload(payload, index)" />
-                <ImageUploader v-if="hasAnalysis && imageKind[index]" :imageFile="enforceImageResults[index].path" />
+                </div> -->
+                <ImageUploader :isUpload="true" @file-uploaded="(payload) => imageUpload(payload, index)" />
+                <!-- <ImageUploader v-if="hasAnalysis && imageKind[index]" :imageFile="enforceImageResults[index]" /> -->
               </div>
             </div>
           </div>
@@ -48,14 +47,15 @@
               <div class="arrow left-arrow" @click="prevPage" v-if="selectedGroup != 0">&lt;</div>
               <div class="imageContainer">
                 <div v-for="(image, index) of groupedImages[selectedGroup]" :key="index" class="images group-image">
-                  <div v-if="hasAnalysis" class="imageSelector">
+                  <div v-if="hasAnalysis && groupedImagesResult[selectedGroup][index].enhanced_image"
+                    class="imageSelector">
                     <button @click="ImageUploaderButton(index)"
                       :class="{ active: groupImageKind[selectedGroup][index] }">
                       <span>{{ groupImageKind[selectedGroup][index] ? "显示原图" : "显示增强" }}</span>
                     </button>
                   </div>
-                  <!-- <ImageUploader :imageFile="groupImageKind[selectedGroup][index]?groupedEnforceImagesResults[selectedGroup][index].path:image.path" /> -->
-                  <ImageUploader :imageFile="image.path" />
+                  <ImageUploader
+                    :imageFile="groupImageKind[selectedGroup][index] ? groupedImagesResult[selectedGroup][index].enhanced_image : image.path" />
                 </div>
               </div>
               <div class="arrow right-arrow" @click="nextPage" v-if="selectedGroup != totalGroup - 1">&gt;</div>
@@ -125,15 +125,15 @@
       </div>
       <div class="probabilities">
         <div v-if="hasAnalysis" class="probability-buttons">
-          <button v-for="(image, index) in isBulkUpload ? groupedImages[selectedGroup] : images" :key="index"
-            @click="showProbabilities(index)" :class="{ active: activeIndex === index }">
+          <button v-for="(image, index) in isBulkUpload ? filteredGroupedImages[selectedGroup] : filteredImageResult"
+            :key="index" @click="showProbabilities(index)" :class="{ active: activeIndex === index }">
             图像{{ index + 1 }}的概率
           </button>
         </div>
         <!-- 根据当前激活的索引展示对应的 probabilities -->
         <div class="progress">
           <StatusBar
-            :progresses="hasAnalysis ? (isBulkUpload ? groupedImages[selectedGroup] : images)[activeIndex].probabilities : undefined">
+            :progresses="hasAnalysis ? (isBulkUpload ? filteredGroupedImages[selectedGroup] : filteredImageResult)[activeIndex].probabilities : undefined">
           </StatusBar>
         </div>
       </div>
@@ -146,8 +146,8 @@
 
 <script>
 import StatusBar from '@/components/IllnessExpectationColumn.vue'
-// import textImage2 from '@/assets/text2.jpg';
 import ImageUploader from '@/components/ImageUploader.vue'
+import axios from 'axios'
 
 export default {
   name: 'ImageAnalysisView', // 添加组件名称
@@ -161,11 +161,23 @@ export default {
     },
     filteredOCTImageResult() {
       return this.imageResult.filter(image => image.name === 'left-oct' || image.name === 'right-oct');
+    },
+    filteredImageResult() {
+      return this.imageResult.filter(image => image.name != 'left-oct' && image.name != 'right-oct');
+    },
+    filteredGroupedImages() {
+      return this.groupedImagesResult.map(subArray => {
+        return subArray.filter(image => image.name !== 'left-oct' && image.name !== 'right-oct');
+      });
     }
   },
   data() {
     return {
       // singleButtonName: ["左眼眼底图", "右眼眼底图", "左眼OCT图像", "右眼OCT图像"],
+      patientName: "张三",
+      patientAge: 21,
+      patientSex: "男",
+      trackingNumber: "HOSP20250324A001",
       imageKind: {//四种按钮的bool，点击显示对应的组件  //10:38 
         1: false,
         2: false,
@@ -292,7 +304,6 @@ export default {
       this.isUploadImg = true;
       const files = Array.from(event.target.files);
       const folderStructure = {};
-      let idx = 1;
       files.forEach(file => {
         const pathParts = file.webkitRelativePath.split('/');
         if (pathParts.length <= 2) {
@@ -307,7 +318,7 @@ export default {
           folderStructure[folderName].push(file);
         }
       });
-
+      let idx = 1;
       if (Object.entries(folderStructure).length) {//有新数据才置空
         this.images = [];
         this.imageResult = [];
@@ -319,11 +330,35 @@ export default {
         this.folderName = folderName;
         for (const file of files) {
           const base64 = await this.readFileAsBase64(file);
-          this.images.push({
-            index: idx,
-            path: base64,
-            probabilities: []
-          });
+          const matches = base64.match(/^data:(.+);base64,(.+)$/);
+          const imageType = matches[1];
+          console.log(imageType);
+          if (imageType === 'image/png')
+            this.images.push({
+              index: idx,
+              name: "left-oct",
+              path: base64,
+              probabilities: [],
+              hasLegend: true,
+              legends: [
+                { "color": "#FFFF00", "name": "神经纤维层" },
+                { "color": "#00FFFF", "name": "神经节细胞层+内丛状层" },
+                { "color": "#FFA500", "name": "内核层" },
+                { "color": "#0000FF", "name": "外丛状层" },
+                { "color": "#FF0000", "name": "外核层" },
+                { "color": "#00FF00", "name": "椭圆体带" },
+                { "color": "#0000FF", "name": "视网膜色素上皮层" },
+                { "color": "#A52A2A", "name": "脉络膜" }
+              ]
+            });
+          else {
+            this.images.push({
+              index: idx,
+              name: "",
+              path: base64,
+              probabilities: []
+            });
+          }
         }
         idx++;
       }
@@ -371,7 +406,18 @@ export default {
         index: type,
         name: "",
         path: payload.base64,
-        probabilities: []
+        probabilities: [],
+        hasLegend: type <= 2 ? false : true,
+        legends: type <= 2 ? [] : [
+          { "color": "#FFFF00", "name": "神经纤维层" },
+          { "color": "#00FFFF", "name": "神经节细胞层+内丛状层" },
+          { "color": "#FFA500", "name": "内核层" },
+          { "color": "#0000FF", "name": "外丛状层" },
+          { "color": "#FF0000", "name": "外核层" },
+          { "color": "#00FF00", "name": "椭圆体带" },
+          { "color": "#0000FF", "name": "视网膜色素上皮层" },
+          { "color": "#A52A2A", "name": "脉络膜" }
+        ]
       };
       switch (type) {
         case 1:
@@ -442,24 +488,23 @@ export default {
         this.isLoading = true;
         // this.hasCommitted = true;
         // 这里模拟加载过程，假设 3 秒后加载完成，隐藏加载动画，模拟获取答案
-        setTimeout(() => {
+        console.log(this.images);
+        await axios.post("http://192.168.137.141:8800/aibo", this.images).then(res => {
           this.isLoading = false;
           this.setUpName = "重新进行分析";
-          //这里results本应该接受分析后的结果
-          const results = this.images;
-          const enforceResults = this.images.reverse();
+          const results = res.data.data;
+          console.log(results)
           if (!this.isBulkUpload) {
             this.imageResult = results;
-            for (let image of enforceResults)
-              this.enforceImageResults[image.index] = image;
-          }
-          else {
+            for (let image of results)
+              this.enforceImageResults[image.index] = image.enhanced_image;
+          } else {
             this.groupedImagesResult = this.getGroupedImages(results);
-            this.groupedEnforceImagesResults = this.getGroupedImages(enforceResults);
+            // this.groupedEnforceImagesResults = this.getGroupedImages(results);
           }
           this.isUploadImg = true;
-          this.hasAnalysis = true;//是否分析改为true
-        }, 3000);
+          this.hasAnalysis = true;
+        })
       }
     },
     observationMode() {
@@ -475,7 +520,12 @@ export default {
             images: this.isBulkUpload ? this.groupedImages : this.images,
             imagePaths: this.imagePaths,
             imageSrc: this.imageSrc,
-            isBulkUpload: this.isBulkUpload
+            imageResults: this.isBulkUpload ? this.groupedImagesResult : this.imageResult,
+            isBulkUpload: this.isBulkUpload,
+            patientName: this.patientName,
+            patientAge: this.patientAge,
+            patientSex: this.patientSex,
+            trackingNumber: this.trackingNumber
           }
         })
       }
@@ -674,7 +724,8 @@ export default {
 
 .big-icon {
   font-size: 20px;
-  margin-right: 8px; /* 可根据需要调整图标与文字的间距 */
+  margin-right: 8px;
+  /* 可根据需要调整图标与文字的间距 */
 }
 
 .setUp::after {
@@ -883,7 +934,8 @@ export default {
   position: absolute;
   top: 40%;
   right: 15px;
-  background:linear-gradient(135deg, #2c6d62 0%, #388e3c 100%);;
+  background: linear-gradient(135deg, #2c6d62 0%, #388e3c 100%);
+  ;
   color: white;
   border: none;
   padding: 10px 15px;
