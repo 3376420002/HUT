@@ -98,7 +98,7 @@ export default {
       this.BarSeriesData = Array.from({ length: this.BarSeriesNames.length }, () => []);
       try {
         // 可以将 URL 提取到配置文件中，提高可维护性
-        const apiUrl = "http://192.168.137.141:8800/getDiseaseConditionByAge";
+        const apiUrl = "http://192.168.137.64:8800/getDiseaseConditionByAge";
         const result = await axios.post(apiUrl, {
           firstAge: 9,
           secondAge: 19,
@@ -122,6 +122,7 @@ export default {
             }
           });
         } else {
+          console.log(result.data.data)
           console.error('服务器返回的数据结构不符合预期');
         }
       } catch (error) {
@@ -131,12 +132,12 @@ export default {
     },
     //获取折线图数据
     async processLineData() {
-      const lineData = await axios.get("http://192.168.137.141:8800/getPatientsNum");
+      const lineData = await axios.get("http://192.168.137.64:8800/getPatientsNum");
       this.LineChartData = lineData.data.data;
       // console.log(this.LineChartData)
     },
     async processPieData() {
-      const result = await axios.get("http://192.168.137.141:8800/getDiseasesDistribution");
+      const result = await axios.get("http://192.168.137.64:8800/getDiseasesDistribution");
       const data=result.data.data;
       for (const key in data) {
         if (Object.prototype.hasOwnProperty.call(data, key)) {

@@ -50,7 +50,7 @@ export default {
       patientName: "",
       patientAge: 0,
       patientSex: "",
-      trackingNumber:""
+      trackingNumber: ""
     };
   },
   created() {
@@ -73,7 +73,7 @@ export default {
         this.patientName = this.$route.query.patientName;
       }
       if (this.$route.query && this.$route.query.patientAge) {
-        this.patientAge = this.$route.query.patientAge;
+        this.patientAge = Number(this.$route.query.patientAge);
       }
       if (this.$route.query && this.$route.query.patientSex) {
         this.patientSex = this.$route.query.patientSex;
@@ -119,7 +119,7 @@ export default {
       this.imgWidth = window.innerWidth * 0.7 - Number(bulk) * 200;
     },
     computedCanvasHeight() {
-      this.imgHeight = window.innerHeight - 50;
+      this.imgHeight = window.innerHeight - 30;
     },
     onRectangleAdded(rectangle) {
       console.log("这是父组件的矩形框添加:", rectangle);
@@ -185,7 +185,7 @@ export default {
 
 .left-bulkBar {
   width: 20%;
-  height: calc(100% - 48px);
+  height: calc(100% - 20px);
   position: fixed;
   left: -20%;
   background-color: #1a1a1a;

@@ -6,15 +6,16 @@
     <div class="left" ref="fullDiv" :class="{ 'fullscreen': isFullscreen }">
       <div id="button-container" ref="buttonContainer">
         <button @click="toggleInitial" :class="{ 'active-button': isInitial }">
-          <img src="@/assets/buttonIcons/drawing.png">
+          <img src="@/assets/buttonIcons/Original.png">
           原图
         </button>
         <button v-if="hasEnhanced[this.currentImageIndex]" @click="toggleStrong" :class="{ 'active-button': isStrong }">
-          <img src="@/assets/buttonIcons/drawing.png">
+          <img src="@/assets/buttonIcons/enhance.png">
           增强图
         </button>
         <button v-if="hasResults[this.currentImageIndex]" @click="toggleResult" :class="{ 'active-button': isResult }">
-          <img src="@/assets/buttonIcons/drawing.png">
+          <img v-if="hasEnhanced[this.currentImageIndex]" src="@/assets/buttonIcons/vessels.png">
+          <img v-else src="@/assets/buttonIcons/delamination.png">
           {{ hasEnhanced[this.currentImageIndex] ? '分割图' : '分层图' }}
         </button>
         <button @click="toggleDrawing" :class="{ 'active-button': isStartDrawRectButtonActive }">

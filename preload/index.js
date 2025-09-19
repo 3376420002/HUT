@@ -9,5 +9,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
     },
     moveWindow: (windowId, x, y, width, height) => {
       ipcRenderer.send('move-window', { windowId, x, y, width, height});
-    }
-});
+    },
+    sendLoginSuccess: () => ipcRenderer.send('login-success'),
+    onWindowObject: (callback) => ipcRenderer.on('window-object', callback)
+});    

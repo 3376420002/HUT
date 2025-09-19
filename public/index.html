@@ -10,15 +10,30 @@
     <%= htmlWebpackPlugin.options.title %>
   </title>
   <style>
-    #app{
+    html,
+    body {
+      height: 100%;
+      /* 让 HTML 和 body 填满窗口高度 */
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+      /* 隐藏超出内容的滚动 */
+      border-radius: 10px;
+      border: 1px solid #e0e0e0;
+    }
+
+    #app {
       overflow: scroll;
-      height:calc(100vh - 30px);
+      width: 100%;
+      height: 100%;
     }
 
     .button-container {
+      width: 100%;
       display: flex;
       align-items: center;
       justify-content: right;
+      background-color: white;
     }
 
     .button {
@@ -45,15 +60,16 @@
 </head>
 
 <body>
-  <noscript>
+  <!-- <noscript>
     <strong>We're sorry but <%= htmlWebpackPlugin.options.title %> doesn't work properly without JavaScript enabled.
         Please enable it to continue.</strong>
-  </noscript>
+  </noscript> -->
   <div class="button-container">
     <div class="button minimize-button" id="minimizeButton">
       <img src="./minimize.png">
     </div>
-    <div class="button maximize-button" id="maximizeButton">
+    <!-- 初始隐藏全屏按钮 -->
+    <div class="button maximize-button" id="maximizeButton" style="display: none">
       <img src="./maxmize.png" id="maximizeIcon">
     </div>
     <div class="button close-button" id="closeButton">
@@ -70,6 +86,7 @@
       let isDown = false;
       let baseX = 0, baseY = 0;
       const buttonContainer = document.querySelector('.button-container');
+      const maximizeButton = document.getElementById('maximizeButton');
 
       window.electronAPI.on('window-object', (data) => {
         if (data.type === 'window-object') {
@@ -83,7 +100,6 @@
             window.electronAPI.performWindowAction(windowId, 'minimize');
           });
 
-          const maximizeButton = document.getElementById('maximizeButton');
           maximizeButton.addEventListener('click', () => {
             window.electronAPI.performWindowAction(windowId, 'maximize');
             isMaximized = !isMaximized;
@@ -116,9 +132,14 @@
           });
         }
       });
+
+      // 假设登录成功后会触发这个事件
+      window.electronAPI.on('login-success', () => {
+        maximizeButton.style.display = 'flex';
+      });
     });
   </script>
   <!-- built files will be auto injected -->
 </body>
 
-</html>
+</html>    

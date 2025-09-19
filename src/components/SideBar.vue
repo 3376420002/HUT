@@ -42,7 +42,8 @@
         <i class="el-icon-edit big-icon"></i>
         诊断建议
       </button>
-      <button class="tool-button" :class="{ 'button-active': toolChoose === 2 }" @click="handleExchangeTool(2)">
+      <button v-if="imageResults.length!==0 && imageResults[currentImageIndex].probabilities" class="tool-button"
+        :class="{ 'button-active': toolChoose === 2 }" @click="handleExchangeTool(2)">
         <i class="el-icon-s-data big-icon"></i>
         AI检测结果
       </button>
@@ -224,7 +225,7 @@ export default {
             patientName: this.patientName,
             patientAge: this.patientAge,
             patientSex: this.patientSex,
-            trackingNumber:this.trackingNumber
+            trackingNumber: this.trackingNumber
           }
           this.$router.push({
             path: '/case',
@@ -468,8 +469,8 @@ export default {
   line-height: 22px;
   cursor: pointer;
   transition: background-color 0.3s ease, transform 0.3s ease;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2), 
-              inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05);
 }
 
 .delete-btn:hover {
@@ -492,8 +493,8 @@ export default {
   border: none;
   border-radius: 8px;
   background: linear-gradient(135deg, #1e3858 0%, #2a5072 100%);
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2), 
-              inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05);
   /* box-shadow: 0 0 15px rgba(0, 255, 255, 0.3), inset 0 0 10px rgba(0, 255, 255, 0.1); */
   font-size: 16px;
   color: #ecf0f1;

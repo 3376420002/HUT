@@ -49,7 +49,7 @@ export default {
 #Home {
   display: flex;
   flex-direction: column;
-  height: calc(100vh - 50px);
+  height: calc(100vh - 30px);
 }
 
 .header {
@@ -59,8 +59,6 @@ export default {
   padding: 15px 20px;
   background-image: linear-gradient(to right, #ddf1ee, #7ee6c2);
   color: #ffffff;
-  border-top-left-radius: 10px;
-  border-top-right-radius: 10px;
 }
 
 .logo-text {

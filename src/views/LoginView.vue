@@ -1,26 +1,28 @@
 <template>
   <div id="Login">
     <div class="login-form">
-      <h2 class="login-title">{{ isRegistering ? '用户注册' : '用户登录' }}</h2>
+      <div class="login-header">
+        <img src="@/assets/logo.png" alt="Logo" class="login-logo" />
+        <h2 class="login-title">{{ isRegistering ? '用户注册' : '用户登录' }}</h2>
+      </div>
       <el-form :model="loginForm" :rules="loginRules" ref="loginForm" @keyup.enter.native="handleSubmit">
         <el-form-item prop="username">
           <el-input v-model="loginForm.username" prefix-icon="el-icon-user"
-            :placeholder="isRegistering ? '请输入用户名' : '请输入用户名'"></el-input>
+            :placeholder="isRegistering ? '请输入用户名' : '请输入用户名'" class="custom-input"></el-input>
         </el-form-item>
 
         <el-form-item prop="password">
           <el-input v-model="loginForm.password" prefix-icon="el-icon-lock" type="password" show-password
-            :placeholder="isRegistering ? '请输入密码' : '请输入密码'"></el-input>
+            :placeholder="isRegistering ? '请输入密码' : '请输入密码'" class="custom-input"></el-input>
         </el-form-item>
 
-        <!-- 注册专用字段 -->
         <template v-if="isRegistering">
           <div class="inline-form-items">
             <el-form-item label="邮箱" class="inline-form-item" prop="email">
-              <el-input v-model="loginForm.email" prefix-icon="el-icon-message"></el-input>
+              <el-input v-model="loginForm.email" prefix-icon="el-icon-message" class="custom-input"></el-input>
             </el-form-item>
             <el-form-item label="手机号" class="inline-form-item" prop="phone">
-              <el-input v-model="loginForm.phone" prefix-icon="el-icon-phone"></el-input>
+              <el-input v-model="loginForm.phone" prefix-icon="el-icon-phone" class="custom-input"></el-input>
             </el-form-item>
           </div>
         </template>
@@ -61,118 +63,141 @@ export default {
           { required: true, message: '请输入密码', trigger: 'blur' }
         ]
       }
-    }
+    };
   },
   methods: {
     handleSubmit() {
       this.$refs.loginForm.validate(valid => {
         if (valid) {
-          this.loading = true
+          this.loading = true;
           setTimeout(() => {
-            this.loading = false
+            this.loading = false;
             if (this.isRegistering) {
-              this.$message.success('注册成功！')
-              this.$refs.loginForm.resetFields()
-              this.isRegistering = false
+              this.$message.success('注册成功！');
+              this.$refs.loginForm.resetFields();
+              this.isRegistering = false;
             } else {
-              this.$router.push('/analyses')
+              window.electronAPI.sendLoginSuccess();
             }
-          }, 1000)
+          }, 1000);
         }
-      })
+      });
     },
     toggleForm() {
-      this.isRegistering = !this.isRegistering
+      this.isRegistering = !this.isRegistering;
       this.$nextTick(() => {
-        this.$refs.loginForm.clearValidate()
-      })
+        this.$refs.loginForm.clearValidate();
+      });
     }
   }
-}
+};
 </script>
 
 <style scoped>
 #Login {
+  height: 100vh;
+  width: 100%;
   display: flex;
   justify-content: center;
   align-items: center;
-  height: calc(100% - 40px);
-  width: calc(100% - 15px);
-  background-image: url('@/assets/login-bg.png');
-  background-size: cover;
-  background-position: center;
-  position: absolute;
+  background-color: #f8f9fa;
+  position: relative;
+  margin: 0;
+  padding: 0;
 }
 
 .login-form {
-  width: 400px;
-  padding: 40px;
-  border: 1px solid rgba(255, 255, 255, 0.3);
-  border-radius: 8px;
-  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
-  backdrop-filter: blur(10px);
+  width: 100%;
+  /* 表单宽度填充整个窗口 */
+  height: 100%;
+  /* 表单高度填充整个窗口 */
+  padding: 20px;
+  /* 适当调整内边距 */
+  background: #fff;
+  /* 去除圆角，因为要填充整个窗口 */
+  box-sizing: border-box;
+  /* 使内边距包含在宽度和高度内 */
+}
+
+.login-header {
+  text-align: center;
+  margin-bottom: 15px;
+}
+
+.login-logo {
+  width: 80px;
+  height: auto;
+  margin-bottom: 10px;
 }
 
 .login-title {
-  margin-bottom: 30px;
-  text-align: center;
-  color: #ffffff;
+  margin: 0;
+  color: #2c2c2c;
+  font-size: 20px;
+  font-weight: 500;
+}
+
+.custom-input :deep(.el-input__inner) {
+  height: 40px;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  font-size: 14px;
+  transition: border-color 0.3s ease;
+}
+
+.custom-input :deep(.el-input__inner):focus {
+  border-color: #409eff;
+  box-shadow: 0 0 0 2px rgba(64, 158, 255, 0.15);
+}
+
+.inline-form-items {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 10px;
+}
+
+.inline-form-item :deep(.el-form-item__label) {
+  color: #666;
+  font-size: 14px;
+  margin-bottom: 5px;
 }
 
 .login-options {
   display: flex;
-  justify-content: space-between;
-  margin-bottom: 5px;
+  justify-content: center;
+  margin: 15px 0;
 }
 
 .login-option {
-  color: #ffffff;
-  font-size: 13px;
+  color: #666;
+  font-size: 14px;
+  transition: color 0.3s ease;
+}
+
+.login-option:hover {
+  color: #409eff;
 }
 
 .login-btn {
   width: 100%;
-  height: 45px;
-  padding: 0 20px;
+  height: 40px;
+  background: #409eff;
+  color: white;
+  border: none;
+  border-radius: 8px;
   font-size: 16px;
-  color: #ffffff;
-  border-color: #ffffff;
-  background-color: transparent;
+  font-weight: 500;
+  transition: background 0.3s ease;
 }
 
-.el-input :deep(.el-input__inner) {
-  border: 1px solid rgba(255, 255, 255, 0.3);
-  background-color: transparent;
+.login-btn:hover {
+  background: #66b1ff;
 }
 
-.el-input :deep(.el-input__inner)::placeholder {
-  color: rgba(255, 255, 255, 0.7);
-}
-
-.el-input :deep(.el-input__inner):focus {
-  box-shadow: 0 0 0 2px rgba(195, 102, 48, 0.2);
-}
-
-.inline-form-items {
-  display: flex;
-  flex-direction: column;
-  gap: 15px;
-}
-
-.inline-form-item :deep(.el-form-item__content) {
-  display: inline-block;
-}
-
-.inline-form-item :deep(.el-form-item__label) {
-  float: none;
-  display: inline-block;
-  width: 60px;
-  text-align: right;
-  color: #ffffff;
-  margin-right: 10px;
-}
-
-.inline-form-item :deep(.el-input) {
-  width: 250px;
+/* 响应式调整 */
+@media (max-width: 480px) {
+  .login-form {
+    padding: 15px;
+  }
 }
 </style>

@@ -172,7 +172,7 @@ export default {
     async getAnswer(userMessage) {
       try {
         // 发送 POST 请求
-        const response = await axios.post("http://192.168.137.141:8800/aiQuestion", {
+        const response = await axios.post("http://192.168.137.64:8800/aiQuestion", {
           question: userMessage
         });
         // 返回响应数据
@@ -469,7 +469,7 @@ export default {
 
 /* AI 消息样式 */
 .answer {
-  background-color: #e8f4fc;
+  background-color: #d4fdf7;
   border-radius: 8px;
   box-shadow: 0 2px 2px rgba(0, 0, 0, 0.05);
   font-family: 'Open Sans', sans-serif;

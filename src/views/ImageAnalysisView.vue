@@ -78,7 +78,7 @@
             </div>
           </div>
           <div class="oct-results">
-            <div class="title">OCT结果图像</div>
+            <div class="title">OCT分层图像</div>
             <div v-if="hasAnalysis" class="imageContainer">
               <div v-for="(image, index) of filteredOCTImageResult" :key="index" class="images single-result">
                 <ImageUploader :imageFile="image.path" />
@@ -489,7 +489,7 @@ export default {
         // this.hasCommitted = true;
         // 这里模拟加载过程，假设 3 秒后加载完成，隐藏加载动画，模拟获取答案
         console.log(this.images);
-        await axios.post("http://192.168.137.141:8800/aibo", this.images).then(res => {
+        await axios.post("http://192.168.137.64:8800/aibo", this.images).then(res => {
           this.isLoading = false;
           this.setUpName = "重新进行分析";
           const results = res.data.data;
