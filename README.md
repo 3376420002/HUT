@@ -9,6 +9,10 @@
 点击下方视频可快速了解项目核心功能与技术亮点：
 
 https://github.com/user-attachments/assets/941c6b69-f89c-4e73-9d9d-bc475a005459
+
+<video width="100%" controls autoplay loop muted>
+  <source src="./assets/videos/荣耀·根源之目-基于眼底医学影像的眼科疾病智能诊断系统-项目演示视频.mp4">
+</video>
 ---
 
 ## 目录
